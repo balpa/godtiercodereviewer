@@ -9,13 +9,34 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:godtiercodereviewer.start",
+    "onCommand:godtiercodereviewer.applyFix",
+    "onCommand:godtiercodereviewer.rejectFix",
+    "onLanguage:javascript"
+  ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "godtiercodereviewer.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "godtiercodereviewer.start",
+        "title": "Start Code Review"
+      },
+      {
+        "command": "godtiercodereviewer.applyFix",
+        "title": "Apply Fix"
+      },
+      {
+        "command": "godtiercodereviewer.rejectFix",
+        "title": "Reject Fix"
+      }
+    ],
+    "codeActions": [
+      {
+        "languages": ["javascript"],
+        "kind": "quickfix"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
