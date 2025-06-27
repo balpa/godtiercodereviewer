@@ -9,10 +9,9 @@
   "categories": [
     "Other"
   ],
+  "type": "commonjs",
   "activationEvents": [
     "onCommand:godtiercodereviewer.start",
-    "onCommand:godtiercodereviewer.applyFix",
-    "onCommand:godtiercodereviewer.rejectFix",
     "onLanguage:javascript"
   ],
   "main": "./extension.js",
@@ -21,14 +20,6 @@
       {
         "command": "godtiercodereviewer.start",
         "title": "Start Code Review"
-      },
-      {
-        "command": "godtiercodereviewer.applyFix",
-        "title": "Apply Fix"
-      },
-      {
-        "command": "godtiercodereviewer.rejectFix",
-        "title": "Reject Fix"
       }
     ],
     "codeActions": [
@@ -54,6 +45,7 @@
     "eslint": "^9.25.1"
   },
   "dependencies": {
+    "@babel/generator": "^7.27.5",
     "@babel/parser": "^7.27.7",
     "recast": "^0.23.11"
   }

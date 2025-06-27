@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const fixer = require('./fixer');
+const { fixCode } = require('./fixer');
 
 const activate = (context) => {
 	context.subscriptions.push(
@@ -34,10 +34,10 @@ const activate = (context) => {
 				return;
 			}
 
-			const fixedCode = fixer.fixCode(code);
+			const staticallyFixedCode = fixCode(code);
 
 			await editor.edit(editBuilder => {
-				editBuilder.replace(range, fixedCode);
+				editBuilder.replace(range, staticallyFixedCode);
 			});
 
 			vscode.window.showInformationMessage('Code review done!');
