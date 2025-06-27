@@ -10,6 +10,7 @@ const { replaceObjectKeys } = require('./functions/replaceObjectKeys')
 const { convertIncludesFunction } = require('./functions/convertIncludesFunction')
 const { replaceCampaignStorageAccessor } = require('./functions/replaceCampaignStorageAccessor')
 const { replaceSystemRulesCalls } = require('./functions/replaceSystemRulesCalls')
+const { addDollarPrefixForNodeElements } = require('./functions/addDollarPrefixForNodeElements')
 
 const parseOptions = {
     parser: {
@@ -33,6 +34,7 @@ const fixCode = (code) => {
     convertIncludesFunction(ast);
     replaceCampaignStorageAccessor(ast);
     replaceSystemRulesCalls(ast);
+    addDollarPrefixForNodeElements(ast);
 
 
     return recast.print(ast, {

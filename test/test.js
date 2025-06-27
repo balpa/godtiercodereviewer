@@ -29,3 +29,8 @@ Insider.storage.localStorage.get(`sp-camp-${ variationId }`);
 Insider.systemRules.isOnProductPage();
 Insider.systemRules.isOnCartPage();
 Insider.systemRules.getCurrency();
+
+//add dollar prefix for node variables
+const productBox = Insider.dom('.ins-product-box')
+const productBox2 = Insider.dom('.ins-product-box').first()
+const productBox3 = Insider.dom('.ins-product-box').text()

@@ -23,5 +23,14 @@ if (arr.includes(x)) {
 }
 
 //Insider.campaign.getCampaignStorage to get campaign data
-Insider.storage
-    .localStorage.get(`sp-camp-${ variationId }`);
+Insider.storage.localStorage.get(`sp-camp-${ variationId }`);
+
+//use call method for system rules
+Insider.systemRules.isOnProductPage();
+Insider.systemRules.isOnCartPage();
+Insider.systemRules.getCurrency();
+
+//add dollar prefix for node variables
+const productBox = Insider.dom('.ins-product-box')
+const productBox2 = Insider.dom('.ins-product-box').first()
+const productBox3 = Insider.dom('.ins-product-box').text()
