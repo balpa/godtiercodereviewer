@@ -23,9 +23,5 @@ if (arr.includes(x)) {
 }
 
 //Insider.campaign.getCampaignStorage to get campaign data
-Insider.storage.localStorage.get(`sp-camp-${ variationId }`);
-
-//use call method for system rules
-Insider.systemRules.isOnProductPage();
-Insider.systemRules.isOnCartPage();
-Insider.systemRules.getCurrency();
+Insider.storage
+    .localStorage.get(`sp-camp-${ variationId }`);

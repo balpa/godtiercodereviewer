@@ -8,6 +8,8 @@ const { clearFunctionName } = require('./functions/clearFunctionName');
 const { ensureExternalFunctionCheck } = require('./functions/ensureExternalFunctionCheck');
 const { replaceObjectKeys } = require('./functions/replaceObjectKeys')
 const { convertIncludesFunction } = require('./functions/convertIncludesFunction')
+const { replaceCampaignStorageAccessor } = require('./functions/replaceCampaignStorageAccessor')
+const { replaceSystemRulesCalls } = require('./functions/replaceSystemRulesCalls')
 
 const parseOptions = {
     parser: {
@@ -29,9 +31,14 @@ const fixCode = (code) => {
     ensureExternalFunctionCheck(ast);
     replaceObjectKeys(ast);
     convertIncludesFunction(ast);
+    replaceCampaignStorageAccessor(ast);
+    replaceSystemRulesCalls(ast);
 
 
-    return recast.print(ast).code;
+    return recast.print(ast, {
+        retainLines: true,
+        quote: 'single'
+      }).code;
 };
 
 module.exports = { fixCode };
