@@ -1,28 +1,29 @@
-const camelCase = (str) => {
-    return str
-        .replace(/[_-]+/g, ' ')
-        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
-            index === 0 ? word.toLowerCase() : word.toUpperCase()
-        )
-        .replace(/\s+/g, '');
+const recast = require('recast');
+const parser = require('@babel/parser');
+
+const { removeConsoleLog } = require('./functions/removeConsoleLog');
+const { clearVariableNames } = require('./functions/clearVariableNames');
+const { clearFunctionName } = require('./functions/clearFunctionName');
+
+const parseOptions = {
+    parser: {
+        parse(source) {
+            return parser.parse(source, {
+                sourceType: 'module',
+                plugins: ['jsx', 'classProperties']
+            });
+        }
+    }
 };
 
 const fixCode = (code) => {
-    let fixedCode = code;
+    const AST = recast.parse(code, parseOptions);
 
-    fixedCode = fixedCode.replace(/^\s*console\.log\(.*\);\s*$/gm, '');
+    removeConsoleLog(AST);
+    clearVariableNames(AST);
+    clearFunctionName(AST);
 
-    fixedCode = fixedCode.replace(
-        /function\s+([a-zA-Z0-9_$]+)/g,
-        (match, p1) => `function ${camelCase(p1)}`
-    );
-
-    fixedCode = fixedCode.replace(
-        /const\s+([a-zA-Z0-9_$]+)\s*=\s*\(/g,
-        (match, p1) => `const ${camelCase(p1)} = (`
-    );
-
-    return fixedCode;
-}
+    return recast.print(AST).code;
+};
 
 module.exports = { fixCode };
