@@ -1,5 +1,8 @@
 const recast = require('recast');
 const parser = require('@babel/parser');
+
+//TODO: return etmeden önce ESlint ekle
+//TODO: babel generator ile kod return edilebilir noktalı virgül için. 
 //const generator = require('@babel/generator').default;
 
 const { removeConsoleLog } = require('./functions/removeConsoleLog');
@@ -11,6 +14,9 @@ const { convertIncludesFunction } = require('./functions/convertIncludesFunction
 const { replaceCampaignStorageAccessor } = require('./functions/replaceCampaignStorageAccessor')
 const { replaceSystemRulesCalls } = require('./functions/replaceSystemRulesCalls')
 const { addDollarPrefixForNodeElements } = require('./functions/addDollarPrefixForNodeElements')
+const { addDollarPrefixForAccessNodesParam } = require('./functions/addDollarPrefixForAccessNodesParam')
+const { addDollarPrefixForOnElementLoadedParam } = require('./functions/addDollarPrefixForOnElementLoadedParam')
+const { convertEs5ToArrowFunctions } = require('./functions/convertEs5ToArrowFunctions')
 
 const parseOptions = {
     parser: {
@@ -35,6 +41,9 @@ const fixCode = (code) => {
     replaceCampaignStorageAccessor(ast);
     replaceSystemRulesCalls(ast);
     addDollarPrefixForNodeElements(ast);
+    addDollarPrefixForAccessNodesParam(ast);
+    addDollarPrefixForOnElementLoadedParam(ast);
+    convertEs5ToArrowFunctions(ast);
 
 
     return recast.print(ast, {

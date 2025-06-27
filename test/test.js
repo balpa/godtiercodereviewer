@@ -34,3 +34,12 @@ Insider.systemRules.getCurrency();
 const productBox = Insider.dom('.ins-product-box')
 const productBox2 = Insider.dom('.ins-product-box').first()
 const productBox3 = Insider.dom('.ins-product-box').text()
+
+//add dollar prefix for accessNodes parameter
+Insider.dom('.ins-product-box').accessNodes((node) => {
+});
+
+//convert es5 functions to arrow function
+function test () {
+    document.querySelector('test')
+}
