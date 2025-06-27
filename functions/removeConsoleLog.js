@@ -5,15 +5,28 @@ function removeConsoleLog(ast) {
     recast.types.visit(ast, {
         visitExpressionStatement(path) {
             const { node } = path;
+
             if (
                 namedTypes.CallExpression.check(node.expression) &&
-                namedTypes.MemberExpression.check(node.expression.callee) &&
-                node.expression.callee.object.name === 'console' &&
-                node.expression.callee.property.name === 'log'
+                namedTypes.MemberExpression.check(node.expression.callee)
             ) {
-                path.prune();
+                const callee = node.expression.callee;
 
-                return false;
+                const isConsoleLog = 
+                    callee.object.name === 'console' &&
+                    callee.property.name === 'log';
+
+                const isInsiderLoggerLog =
+                    callee.object.type === 'MemberExpression' &&
+                    callee.object.object.name === 'Insider' &&
+                    callee.object.property.name === 'logger' &&
+                    callee.property.name === 'log';
+
+                if (isConsoleLog || isInsiderLoggerLog) {
+                    path.prune();
+
+                    return false;
+                }
             }
 
             this.traverse(path);
