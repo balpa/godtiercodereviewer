@@ -8,6 +8,7 @@ function Do_Something() {
 }
 
 //adds isFunction controls for extenal functions
+//TODO: if içerisinde değişken vs olarak kullanılabilir. bu case'i cover'la
 Insider.__external.xxxx('optimize');
 
 //replaces Object.keys with Insider.fns.keys
@@ -43,3 +44,14 @@ Insider.dom('.ins-product-box').accessNodes((node) => {
 function test () {
     document.querySelector('test')
 }
+
+//replace var to const
+var a = 1;
+
+//convert to function expression
+function sum(a, b, c) {
+    return a + b;
+}
+
+//add paranthesis for function params
+[1, 2, 3].map(x => x * x);

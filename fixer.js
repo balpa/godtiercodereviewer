@@ -17,6 +17,8 @@ const { addDollarPrefixForNodeElements } = require('./functions/addDollarPrefixF
 const { addDollarPrefixForAccessNodesParam } = require('./functions/addDollarPrefixForAccessNodesParam')
 const { addDollarPrefixForOnElementLoadedParam } = require('./functions/addDollarPrefixForOnElementLoadedParam')
 const { convertEs5ToArrowFunctions } = require('./functions/convertEs5ToArrowFunctions')
+const { replaceVarToConst } = require('./functions/replaceVarToConst')
+const { convertToFunctionExpression } = require('./functions/convertToFunctionExpression')
 
 const parseOptions = {
     parser: {
@@ -29,22 +31,25 @@ const parseOptions = {
     }
 };
 
+const functionCaller = (fn, ast) => {
+    if (typeof fn === 'function') {
+        fn(ast);
+    }
+};
+
 const fixCode = (code) => {
     const ast = recast.parse(code, parseOptions);
 
-    removeConsoleLog(ast);
-    clearVariableNames(ast);
-    clearFunctionName(ast);
-    ensureExternalFunctionCheck(ast);
-    replaceObjectKeys(ast);
-    convertIncludesFunction(ast);
-    replaceCampaignStorageAccessor(ast);
-    replaceSystemRulesCalls(ast);
-    addDollarPrefixForNodeElements(ast);
-    addDollarPrefixForAccessNodesParam(ast);
-    addDollarPrefixForOnElementLoadedParam(ast);
-    convertEs5ToArrowFunctions(ast);
+    const declaredFunctions = [
+        removeConsoleLog, clearVariableNames, clearFunctionName, ensureExternalFunctionCheck, replaceObjectKeys,
+        convertIncludesFunction, replaceCampaignStorageAccessor, replaceSystemRulesCalls, addDollarPrefixForNodeElements,
+        addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
+        replaceVarToConst, convertToFunctionExpression
+    ]
 
+    declaredFunctions.forEach((fn) => {
+        functionCaller(fn, ast)
+    })
 
     return recast.print(ast, {
         retainLines: true,

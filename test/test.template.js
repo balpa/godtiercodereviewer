@@ -8,6 +8,7 @@ function Do_Something() {
 }
 
 //adds isFunction controls for extenal functions
+//TODO: if içerisinde değişken vs olarak kullanılabilir. bu case'i cover'la
 Insider.__external.xxxx('optimize');
 
 //replaces Object.keys with Insider.fns.keys
@@ -38,3 +39,16 @@ const productBox3 = Insider.dom('.ins-product-box').text()
 //add dollar prefix for accessNodes parameter
 Insider.dom('.ins-product-box').accessNodes((node) => {
 });
+
+//convert es5 functions to arrow function
+function test () {
+    document.querySelector('test')
+}
+
+//replace var to const
+var a = 1;
+
+//convert to function expression
+function sum(a, b) {
+    return a + b;
+}
