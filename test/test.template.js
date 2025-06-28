@@ -12,8 +12,8 @@ function Do_Something() {
 Insider.__external.xxxx('optimize');
 
 //replaces Object.keys with Insider.fns.keys
-const selectors = Object.keys({style: `ins-custom-style-${ 1 }`}).reduce((createdSelector, key) => {
-    createdSelector[key] = `.${ classes[key] }`;
+const selectors = Object.keys({ style: `ins-custom-style-${1}` }).reduce((createdSelector, key) => {
+    createdSelector[key] = `.${classes[key]}`;
 
     return createdSelector;
 }, {})
@@ -24,7 +24,7 @@ if (arr.includes(x)) {
 }
 
 //Insider.campaign.getCampaignStorage to get campaign data
-Insider.storage.localStorage.get(`sp-camp-${ variationId }`);
+Insider.storage.localStorage.get(`sp-camp-${variationId}`);
 
 //use call method for system rules
 Insider.systemRules.isOnProductPage();
@@ -41,7 +41,7 @@ Insider.dom('.ins-product-box').accessNodes((node) => {
 });
 
 //convert es5 functions to arrow function
-function test () {
+function test() {
     document.querySelector('test')
 }
 
@@ -49,6 +49,34 @@ function test () {
 var a = 1;
 
 //convert to function expression
-function sum(a, b) {
+function sum(a, b, c) {
     return a + b;
 }
+
+//add paranthesis for function params
+[1, 2, 3].map(x => x * x);
+
+//convert new array to literal
+var productIds = new Array('1234', '34445', '5677');
+
+//NEEDS FIX: convert object properties to shorthand
+const createPerson = {
+    name: name,
+    age: age,
+    status: status,
+};
+
+//apply destructring
+const foo = () => {
+    Insider.dom('box-item').addClass(classes.relative);
+
+    if (Insider.dom('wrapper').hasClass(classes.relative)) {
+    }
+}
+
+const buildCSS = () => {
+    const customStyle =
+    `${ selectors.hide } {
+        display: none;
+    }`;
+};

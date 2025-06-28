@@ -19,6 +19,10 @@ const { addDollarPrefixForOnElementLoadedParam } = require('./functions/addDolla
 const { convertEs5ToArrowFunctions } = require('./functions/convertEs5ToArrowFunctions')
 const { replaceVarToConst } = require('./functions/replaceVarToConst')
 const { convertToFunctionExpression } = require('./functions/convertToFunctionExpression')
+const { convertNewArrayToLiteral } = require('./functions/convertNewArrayToLiteral')
+//FIX: convertObjectPropertiesToShorthand not working
+const { convertObjectPropertiesToShorthand } = require('./functions/convertObjectPropertiesToShorthand')
+const { applyDestructuringRefactoring } = require('./functions/applyDestructuringRefactoring')
 
 const parseOptions = {
     parser: {
@@ -44,7 +48,8 @@ const fixCode = (code) => {
         removeConsoleLog, clearVariableNames, clearFunctionName, ensureExternalFunctionCheck, replaceObjectKeys,
         convertIncludesFunction, replaceCampaignStorageAccessor, replaceSystemRulesCalls, addDollarPrefixForNodeElements,
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
-        replaceVarToConst, convertToFunctionExpression
+        replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
+        applyDestructuringRefactoring
     ]
 
     declaredFunctions.forEach((fn) => {
