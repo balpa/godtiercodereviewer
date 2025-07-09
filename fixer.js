@@ -27,6 +27,7 @@ const { convertLengthControlForIfCondition } = require('./functions/convertLengt
 const { convertStringCasting } = require('./functions/convertStringCasting')
 //const { addErrorHandlerIfMissing } = require('./functions/addErrorHandlerIfMissing')
 const { addVariationIdForEventNamespaces } = require('./functions/addVariationIdForEventNamespaces')
+const { enhanceEventHandlers } = require('./functions/enhanceEventHandlers')
 
 const parseOptions = {
     parser: {
@@ -54,7 +55,7 @@ const fixCode = (code) => {
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
         replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
-        addVariationIdForEventNamespaces
+        addVariationIdForEventNamespaces, enhanceEventHandlers
     ]
 
     declaredFunctions.forEach((fn) => {

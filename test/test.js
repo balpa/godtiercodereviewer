@@ -106,3 +106,7 @@ Insider.request.get({
 //add variation id for event namespace
 Insider.eventManager.once('click.test:name', () => {
 });
+
+//add debounce/throttle
+Insider.eventManager.once('scroll.back:to:top:3', window, () => {
+});
