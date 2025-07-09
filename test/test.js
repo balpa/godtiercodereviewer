@@ -92,3 +92,17 @@ const getFullName = (user) => {
 //change length control for if cond
 if (collection.length) {
 }
+
+//change toString to String
+const totalScore = this.reviewScore.toString();
+
+//add error handling NEEDS TO BE DONE FROM SCRATCH
+Insider.request.get({
+    url: 'https://cronus.useinsider.com/api/inone/get-status/' + partnerName,
+    success: (response) => {
+    }
+});
+
+//add variation id for event namespace
+Insider.eventManager.once('click.test:name', () => {
+});

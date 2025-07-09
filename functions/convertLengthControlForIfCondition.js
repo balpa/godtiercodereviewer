@@ -1,7 +1,7 @@
 const recast = require('recast');
 const { namedTypes: n, builders: b } = recast.types;
 
-function changeLengthControlForIfCondition(ast) {
+function convertLengthControlForIfCondition(ast) {
     recast.visit(ast, {
         visitIfStatement(path) {
             const test = path.node.test;
@@ -24,4 +24,4 @@ function changeLengthControlForIfCondition(ast) {
     });
 }
 
-module.exports = { changeLengthControlForIfCondition };
+module.exports = { convertLengthControlForIfCondition };
