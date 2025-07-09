@@ -23,6 +23,7 @@ const { convertNewArrayToLiteral } = require('./functions/convertNewArrayToLiter
 //FIX: convertObjectPropertiesToShorthand not working
 const { convertObjectPropertiesToShorthand } = require('./functions/convertObjectPropertiesToShorthand')
 const { applyDestructuringRefactoring } = require('./functions/applyDestructuringRefactoring')
+const { changeLengthControlForIfCondition } = require('./functions/changeLengthControlForIfCondition')
 
 const parseOptions = {
     parser: {
@@ -49,7 +50,7 @@ const fixCode = (code) => {
         convertIncludesFunction, replaceCampaignStorageAccessor, replaceSystemRulesCalls, addDollarPrefixForNodeElements,
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
         replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
-        applyDestructuringRefactoring
+        applyDestructuringRefactoring, changeLengthControlForIfCondition
     ]
 
     declaredFunctions.forEach((fn) => {

@@ -48,12 +48,12 @@ function test() {
 //replace var to const
 var a = 1;
 
-//convert to function expression
+//FIX: convert to function expression
 function sum(a, b, c) {
     return a + b;
 }
 
-//add paranthesis for function params
+//add paranthesis for function params NOT WORKING
 [1, 2, 3].map(x => x * x);
 
 //convert new array to literal
@@ -67,7 +67,7 @@ const createPerson = {
 };
 
 //apply destructring (works only for classes, selectors, config)
-//TODO: more testing and one line for destructring
+//TODO: more testing and one line for destructring ALSO remove var decs after dsting for 86 87
 const foo = () => {
     Insider.dom('box-item').addClass(classes.relative);
 
@@ -87,4 +87,8 @@ const getFullName = (user) => {
     const lastName = config.lastName;
 
     return `${ firstName } ${ lastName }`;
+}
+
+//change length control for if cond
+if (collection.length) {
 }
