@@ -5,6 +5,16 @@ const n = recast.types.namedTypes;
 const b = recast.types.builders;
 const visit = recast.types.visit;
 
+function isInsideIfStatement(path) {
+    while (path) {
+        if (n.IfStatement.check(path.node)) {
+            return true;
+        }
+        path = path.parentPath;
+    }
+    return false;
+}
+
 function ensureExternalFunctionCheck(ast) {
     const externalCalls = new Map();
 
@@ -20,6 +30,10 @@ function ensureExternalFunctionCheck(ast) {
                 callee.object.property.name === '__external'
             ) {
                 const fnName = callee.property.name;
+
+                if (isInsideIfStatement(path)) {
+                    return false;
+                }
 
                 if (!externalCalls.has(fnName)) {
                     externalCalls.set(fnName, []);

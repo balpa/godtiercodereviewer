@@ -8,8 +8,11 @@ function Do_Something() {
 }
 
 //adds isFunction controls for extenal functions
-//TODO: if içerisinde değişken vs olarak kullanılabilir. bu case'i cover'la
+//TODO: değişken tanımlamalarında gereksiz if cond eklenecek. cover'lanabilir mi araştır
 Insider.__external.xxxx('optimize');
+
+if (Insider.__external.xxxx('optimize')) {
+}
 
 //replaces Object.keys with Insider.fns.keys
 const selectors = Object.keys({ style: `ins-custom-style-${1}` }).reduce((createdSelector, key) => {
@@ -48,7 +51,7 @@ function test() {
 //replace var to const
 var a = 1;
 
-//FIX: convert to function expression
+//convert to function expression
 function sum(a, b, c) {
     return a + b;
 }
