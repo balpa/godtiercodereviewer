@@ -25,7 +25,7 @@ const { convertObjectPropertiesToShorthand } = require('./functions/convertObjec
 const { applyDestructuringRefactoring } = require('./functions/applyDestructuringRefactoring')
 const { convertLengthControlForIfCondition } = require('./functions/convertLengthControlForIfCondition')
 const { convertStringCasting } = require('./functions/convertStringCasting')
-//const { addErrorHandlerIfMissing } = require('./functions/addErrorHandlerIfMissing')
+const { addErrorHandlerToRequests } = require('./functions/addErrorHandlerIfMissing')
 const { addVariationIdForEventNamespaces } = require('./functions/addVariationIdForEventNamespaces')
 const { enhanceEventHandlers } = require('./functions/enhanceEventHandlers')
 
@@ -55,7 +55,7 @@ const fixCode = (code) => {
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
         replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
-        addVariationIdForEventNamespaces, enhanceEventHandlers
+        addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests
     ]
 
     declaredFunctions.forEach((fn) => {

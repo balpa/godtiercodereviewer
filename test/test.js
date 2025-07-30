@@ -68,7 +68,8 @@ const createPerson = {
 };
 
 //apply destructring (works only for classes, selectors, config)
-//TODO: more testing and one line for destructring ALSO remove var decs after dsting for 86 87
+//IDEA: apply destructring for forEach etc method parameters
+//NOTE: one line not working
 const foo = () => {
     Insider.dom('box-item').addClass(classes.relative);
 
@@ -97,9 +98,15 @@ if (collection.length) {
 //change toString to String
 const totalScore = this.reviewScore.toString();
 
-//add error handling NEEDS TO BE DONE FROM SCRATCH
+//add error handling
 Insider.request.get({
     url: 'https://cronus.useinsider.com/api/inone/get-status/' + partnerName,
+    success: (response) => {
+    }
+});
+
+Insider.request.post({
+    url: 'https://cronus.useinsider.com/api/inone/get-status/ggfdsgsfdgsmk',
     success: (response) => {
     }
 });
