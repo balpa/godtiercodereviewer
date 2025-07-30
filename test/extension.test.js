@@ -1,15 +1,113 @@
-const assert = require('assert');
+//1-> camelCase function name
+//2-> remove console logs
+function Do_Something() {
+    console.log("log1");
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-const vscode = require('vscode');
-// const myExtension = require('../extension');
+    Insider.logger.log('test2');
+    return true
+}
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+//adds isFunction controls for extenal functions
+//TODO: değişken tanımlamalarında gereksiz if cond eklenecek. cover'lanabilir mi araştır
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
+Insider.__external.xxxx('optimize');
+
+if (Insider.__external.xxxx('optimize')) {
+}
+
+//replaces Object.keys with Insider.fns.keys
+const selectors = Object.keys({ style: `ins-custom-style-${1}` }).reduce((createdSelector, key) => {
+    createdSelector[key] = `.${classes[key]}`;
+
+    return createdSelector;
+}, {})
+
+//Insider.fns.has instead of .includes()
+const arr = [1, 2, 3];
+if (arr.includes(x)) {
+}
+
+//Insider.campaign.getCampaignStorage to get campaign data
+Insider.storage.localStorage.get(`sp-camp-${variationId}`);
+
+//use call method for system rules
+Insider.systemRules.isOnProductPage();
+Insider.systemRules.isOnCartPage();
+Insider.systemRules.getCurrency();
+
+//add dollar prefix for node variables
+const productBox = Insider.dom('.ins-product-box')
+const productBox2 = Insider.dom('.ins-product-box').first()
+const productBox3 = Insider.dom('.ins-product-box').text()
+
+//add dollar prefix for accessNodes parameter
+Insider.dom('.ins-product-box').accessNodes((node) => {
+});
+
+//convert es5 functions to arrow function
+function test() {
+    document.querySelector('test')
+}
+
+//replace var to const
+var a = 1;
+
+//convert to function expression
+function sum(a, b, c) {
+    return a + b;
+}
+
+//convert new array to literal
+var productIds = new Array('1234', '34445', '5677');
+
+//NEEDS FIX: convert object properties to shorthand
+const createPerson = {
+    name: name,
+    age: age,
+    status: status,
+};
+
+//apply destructring (works only for classes, selectors, config)
+//TODO: more testing and one line for destructring ALSO remove var decs after dsting for 86 87
+const foo = () => {
+    Insider.dom('box-item').addClass(classes.relative);
+
+    if (Insider.dom('wrapper').hasClass(classes.relative)) {
+    }
+}
+
+const buildCSS = () => {
+    const customStyle =
+    `${ selectors.hide } {
+        display: none;
+    }`;
+};
+
+const getFullName = (user) => {
+    const firstName = config.firstName;
+    const lastName = config.lastName;
+
+    return `${ firstName } ${ lastName }`;
+}
+
+//change length control for if cond
+if (collection.length) {
+}
+
+//change toString to String
+const totalScore = this.reviewScore.toString();
+
+//add error handling NEEDS TO BE DONE FROM SCRATCH
+Insider.request.get({
+    url: 'https://cronus.useinsider.com/api/inone/get-status/' + partnerName,
+    success: (response) => {
+    }
+});
+
+//add variation id for event namespace
+Insider.eventManager.once('click.test:name', () => {
+});
+
+//add debounce/throttle
+Insider.eventManager.once('scroll.back:to:top:3', window, () => {
 });

@@ -9,6 +9,7 @@ function Do_Something() {
 
 //adds isFunction controls for extenal functions
 //TODO: değişken tanımlamalarında gereksiz if cond eklenecek. cover'lanabilir mi araştır
+
 Insider.__external.xxxx('optimize');
 
 if (Insider.__external.xxxx('optimize')) {
@@ -56,13 +57,10 @@ function sum(a, b, c) {
     return a + b;
 }
 
-//add paranthesis for function params NOT WORKING
-[1, 2, 3].map(x => x * x);
-
 //convert new array to literal
 var productIds = new Array('1234', '34445', '5677');
 
-//NEEDS FIX: convert object properties to shorthand
+//NEEDS FIX: convert object properties to shorthand  --> might not be feasible with recast
 const createPerson = {
     name: name,
     age: age,
