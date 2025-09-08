@@ -81,6 +81,12 @@ const buildCSS = () => {
     const customStyle =
     `${ selectors.hide } {
         display: none;
+    }
+    ${ selectors.flex } {
+        display: flex;
+    }
+    ${ selectors.block } {
+        display: block;
     }`;
 };
 

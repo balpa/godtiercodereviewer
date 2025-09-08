@@ -3,6 +3,7 @@ require('dotenv').config();
 const { fixCode } = require('./fixer');
 const { getWebviewContent } = require('./getWebviewContent');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const rules = require('./rules.js');
 
 const activate = (context) => {
 	const commandId = 'godtiercodereviewer.start';
@@ -37,72 +38,107 @@ const activate = (context) => {
 
 		const staticallyFixedCode = fixCode(code);
 
-		let AIFixedCode;
-		try {
-			const configuration = vscode.workspace.getConfiguration('godtiercodereviewer');
-        	const apiKey = configuration.get('apiKey');
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: "God Tier Reviewer kodunuzu düzeltiyor...",
+			cancellable: false
+		}, async (progress) => {
+			try {
+				const configuration = vscode.workspace.getConfiguration('godtiercodereviewer');
+				const apiKey = configuration.get('apiKey');
 
-			if (!apiKey) {
-				vscode.window.showErrorMessage('GEMINI_API_KEY ortam değişkeni bulunamadı. Lütfen ayarlayın.');
+				if (!apiKey) {
+					vscode.window.showErrorMessage('Google GenAI API Key bulunamadı. Lütfen ayarlardan girin.');
+					return;
+				}
 
+				const genAI = new GoogleGenerativeAI(apiKey);
+				const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+				const promptForFixing = `
+Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
+Görev: Sana verilen JavaScript kodunu, [KURALLAR] bölümündeki JSON listesine göre analiz et. Koddaki tüm kural ihlallerini düzelterek kodu yeniden yaz. Kodda var olan değişkenlerde gereksiz değişiklik yapma. css ve html'in indentation'ını değiştirme.
+[KURALLAR]
+${JSON.stringify(rules)}
+[ORİJİNAL KOD]
+${staticallyFixedCode}
+[ÇIKTI FORMATI]
+Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme.`;
+
+				const result = await model.generateContent(promptForFixing);
+				const response = result.response;
+				const AIFixedCode = response.text();
+				const finalCode = fixCode(AIFixedCode);
+
+				if (!finalCode || !finalCode.trim()) {
+					vscode.window.showWarningMessage("AI koda uygulanacak bir değişiklik bulamadı veya bir hata oluştu.");
+
+					return;
+				}
+
+				const panel = vscode.window.createWebviewPanel(
+					'godtierCodeReview',
+					'Code Review Result',
+					vscode.ViewColumn.Beside,
+					{ enableScripts: true }
+				);
+
+				panel.webview.html = getWebviewContent(code, finalCode);
+
+				panel.webview.onDidReceiveMessage(
+					async message => {
+						switch (message.command) {
+							case 'applyFix':
+								await editor.edit(editBuilder => {
+									editBuilder.replace(range, finalCode);
+								});
+
+								vscode.window.showInformationMessage('Kod düzeltmeleri uygulandı!');
+								panel.dispose();
+								return;
+						}
+					},
+					undefined,
+					context.subscriptions
+				);
+
+			} catch (error) {
+				console.error("Google GenAI Error:", error);
+				vscode.window.showErrorMessage('AI yanıtı alınırken bir hata oluştu. Detaylar için OUTPUT konsoluna bakın.');
 				return;
 			}
+		});
 
-			const genAI = new GoogleGenerativeAI(apiKey);
-			const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-			const prompt = `You are an expert code reviewer. Analyze and correct the following code. 
-    Only output the raw, corrected code itself. 
-    Do not include explanations, introductory sentences, or markdown code blocks like \`\`\`javascript.
 
-    Original Code:
-    ${code}`;
+		// const panel = vscode.window.createWebviewPanel(
+		// 	'godtierCodeReview',
+		// 	'Code Review Result',
+		// 	vscode.ViewColumn.Beside,
+		// 	{
+		// 		enableScripts: true
+		// 	}
+		// );
 
-			const testPrompt = 'bugün hava nasıl'
+		// panel.webview.html = getWebviewContent(code, staticallyFixedCode);
 
-			const result = await model.generateContent(prompt);
-			const response = await result.response;
+		// panel.webview.onDidReceiveMessage(
+		// 	async message => {
+		// 		switch (message.command) {
+		// 			case 'applyFix':
+		// 				await editor.edit(editBuilder => {
+		// 					editBuilder.replace(range, staticallyFixedCode);
+		// 				});
 
-			AIFixedCode = response.text();
+		// 				vscode.window.showInformationMessage('Code review done! Changes applied.');
 
-			console.log(AIFixedCode)
+		// 				panel.dispose();
 
-		} catch (error) {
-			console.error("Google GenAI Error:", error);
-
-			vscode.window.showErrorMessage('AI yanıtı alınırken bir hata oluştu. Detaylar için OUTPUT > God Tier Code Reviewer konsoluna bakın.');
-
-			return;
-		}
-
-		const panel = vscode.window.createWebviewPanel(
-			'godtierCodeReview',
-			'Code Review Result',
-			vscode.ViewColumn.Beside,
-			{
-				enableScripts: true
-			}
-		);
-
-		panel.webview.html = getWebviewContent(code, staticallyFixedCode);
-
-		panel.webview.onDidReceiveMessage(
-			async message => {
-				switch (message.command) {
-					case 'applyFix':
-						await editor.edit(editBuilder => {
-							editBuilder.replace(range, staticallyFixedCode);
-						});
-
-						vscode.window.showInformationMessage('Code review done! Changes applied.');
-
-						panel.dispose();
-
-						return;
-				}
-			},
-			undefined,
-			context.subscriptions
-		);
+		// 				return;
+		// 		}
+		// 	},
+		// 	undefined,
+		// 	context.subscriptions
+		// );
 	});
 
 	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 900);
