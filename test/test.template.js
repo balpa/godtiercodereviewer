@@ -8,8 +8,12 @@ function Do_Something() {
 }
 
 //adds isFunction controls for extenal functions
-//TODO: if içerisinde değişken vs olarak kullanılabilir. bu case'i cover'la
+//TODO: değişken tanımlamalarında gereksiz if cond eklenecek. cover'lanabilir mi araştır
+
 Insider.__external.xxxx('optimize');
+
+if (Insider.__external.xxxx('optimize')) {
+}
 
 //replaces Object.keys with Insider.fns.keys
 const selectors = Object.keys({ style: `ins-custom-style-${1}` }).reduce((createdSelector, key) => {
@@ -53,20 +57,19 @@ function sum(a, b, c) {
     return a + b;
 }
 
-//add paranthesis for function params
-[1, 2, 3].map(x => x * x);
-
 //convert new array to literal
 var productIds = new Array('1234', '34445', '5677');
 
-//NEEDS FIX: convert object properties to shorthand
+//NEEDS FIX: convert object properties to shorthand  --> might not be feasible with recast
 const createPerson = {
     name: name,
     age: age,
     status: status,
 };
 
-//apply destructring
+//apply destructring (works only for classes, selectors, config)
+//IDEA: apply destructring for forEach etc method parameters
+//NOTE: one line not working
 const foo = () => {
     Insider.dom('box-item').addClass(classes.relative);
 
@@ -80,3 +83,38 @@ const buildCSS = () => {
         display: none;
     }`;
 };
+
+const getFullName = (user) => {
+    const firstName = config.firstName;
+    const lastName = config.lastName;
+
+    return `${ firstName } ${ lastName }`;
+}
+
+//change length control for if cond
+if (collection.length) {
+}
+
+//change toString to String
+const totalScore = this.reviewScore.toString();
+
+//add error handling
+Insider.request.get({
+    url: 'https://cronus.useinsider.com/api/inone/get-status/' + partnerName,
+    success: (response) => {
+    }
+});
+
+Insider.request.post({
+    url: 'https://cronus.useinsider.com/api/inone/get-status/ggfdsgsfdgsmk',
+    success: (response) => {
+    }
+});
+
+//add variation id for event namespace
+Insider.eventManager.once('click.test:name', () => {
+});
+
+//add debounce/throttle
+Insider.eventManager.once('scroll.back:to:top:3', window, () => {
+});
