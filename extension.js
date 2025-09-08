@@ -55,17 +55,18 @@ const activate = (context) => {
 				const genAI = new GoogleGenerativeAI(apiKey);
 				const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-				const promptForFixing = `
-Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
-Görev: Sana verilen JavaScript kodunu, [KURALLAR] bölümündeki JSON listesine göre analiz et. Koddaki tüm kural ihlallerini düzelterek kodu yeniden yaz. Kodda var olan değişkenlerde gereksiz değişiklik yapma. css ve html'in indentation'ını değiştirme.
-[KURALLAR]
-${JSON.stringify(rules)}
-[ORİJİNAL KOD]
-${staticallyFixedCode}
-[ÇIKTI FORMATI]
-Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme.`;
+				const prompt = `
+				Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
+				Görev: Sana verilen JavaScript kodunu, [KURALLAR] bölümündeki JSON listesine göre analiz et. Koddaki tüm kural ihlallerini düzelterek kodu yeniden yaz. Kodda var olan değişkenlerde gereksiz değişiklik yapma.
+				**ÖNEMLİ KURAL: Template literal içinde bulunan çok satırlı HTML ve CSS kod bloklarının formatı (boşluklar, girintiler ve satır sonları) okunabilirlik için kasıtlı olarak o şekilde yazılmıştır. Bu blokların iç yapısını KESİNLİKLE DEĞİŞTİRME, birebir koru.**
+				[KURALLAR]
+				${JSON.stringify(rules)}
+				[ORİJİNAL KOD]
+				${staticallyFixedCode}
+				[ÇIKTI FORMATI]
+				Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme.`;
 
-				const result = await model.generateContent(promptForFixing);
+				const result = await model.generateContent(prompt);
 				const response = result.response;
 				const AIFixedCode = response.text();
 				const finalCode = fixCode(AIFixedCode);
@@ -94,7 +95,9 @@ Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDI
 								});
 
 								vscode.window.showInformationMessage('Kod düzeltmeleri uygulandı!');
+
 								panel.dispose();
+
 								return;
 						}
 					},
@@ -104,41 +107,12 @@ Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDI
 
 			} catch (error) {
 				console.error("Google GenAI Error:", error);
+
 				vscode.window.showErrorMessage('AI yanıtı alınırken bir hata oluştu. Detaylar için OUTPUT konsoluna bakın.');
+
 				return;
 			}
 		});
-
-
-		// const panel = vscode.window.createWebviewPanel(
-		// 	'godtierCodeReview',
-		// 	'Code Review Result',
-		// 	vscode.ViewColumn.Beside,
-		// 	{
-		// 		enableScripts: true
-		// 	}
-		// );
-
-		// panel.webview.html = getWebviewContent(code, staticallyFixedCode);
-
-		// panel.webview.onDidReceiveMessage(
-		// 	async message => {
-		// 		switch (message.command) {
-		// 			case 'applyFix':
-		// 				await editor.edit(editBuilder => {
-		// 					editBuilder.replace(range, staticallyFixedCode);
-		// 				});
-
-		// 				vscode.window.showInformationMessage('Code review done! Changes applied.');
-
-		// 				panel.dispose();
-
-		// 				return;
-		// 		}
-		// 	},
-		// 	undefined,
-		// 	context.subscriptions
-		// );
 	});
 
 	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 900);
