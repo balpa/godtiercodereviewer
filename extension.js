@@ -53,7 +53,7 @@ const activate = (context) => {
 				}
 
 				const genAI = new GoogleGenerativeAI(apiKey);
-				const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+				const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
 				const prompt = `
 				Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
@@ -64,7 +64,7 @@ const activate = (context) => {
 				[ORİJİNAL KOD]
 				${staticallyFixedCode}
 				[ÇIKTI FORMATI]
-				Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme.`;
+				Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme. Kodun syntax olarak sorunsuz olmasına ekstra dikkat et. Tüm köşeli parantezler düzgün şekilde kapanmalı`;
 
 				const result = await model.generateContent(prompt);
 				const response = result.response;
@@ -130,3 +130,5 @@ module.exports = {
 	activate,
 	deactivate
 };
+
+//TODO:: save'de static fix atıp ai optional olabilir token muhabbeti için. gerçek kod örneğinde test et.
