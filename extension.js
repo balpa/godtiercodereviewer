@@ -99,6 +99,10 @@ const activate = (context) => {
 								panel.dispose();
 
 								return;
+							case 'rejectFix':
+								panel.dispose();
+
+								return;
 						}
 					},
 					undefined,

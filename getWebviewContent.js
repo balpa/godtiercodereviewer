@@ -82,6 +82,9 @@ function getWebviewContent(originalCode, fixedCode) {
                         margin-right: 8px;
                         border: 1px solid #555;
                     }
+                    #reject-btn {
+                        background-color: rgba(255, 0, 0, 0.2)
+                    } 
                     .added { background-color: rgba(0, 255, 0, 0.2); }
                     .removed { background-color: rgba(255, 0, 0, 0.2); }
                 </style>
@@ -94,11 +97,17 @@ function getWebviewContent(originalCode, fixedCode) {
                 </div>
                 <div class="container">${ diffHtml }</div>
                 <button id="apply-btn">Apply Changes</button>
+                <button id="reject-btn">Reject Changes</button>
                 <script>
                     const vscode = acquireVsCodeApi();
                     document.getElementById('apply-btn').addEventListener('click', () => {
                         vscode.postMessage({
                             command: 'applyFix'
+                        });
+                    });
+                    document.getElementById('reject-btn').addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'rejectFix'
                         });
                     });
                 </script>
