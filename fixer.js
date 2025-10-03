@@ -1,5 +1,6 @@
 const recast = require('recast');
 const parser = require('@babel/parser');
+const prettier = require('prettier');
 
 //TODO: return etmeden önce ESlint ekle
 //TODO: babel generator ile kod return edilebilir noktalı virgül için. 
@@ -28,6 +29,7 @@ const { convertStringCasting } = require('./functions/convertStringCasting')
 const { addErrorHandlerToRequests } = require('./functions/addErrorHandlerIfMissing')
 const { addVariationIdForEventNamespaces } = require('./functions/addVariationIdForEventNamespaces')
 const { enhanceEventHandlers } = require('./functions/enhanceEventHandlers')
+const { convertToAccessNodes } = require('./functions/convertToAccessNodes');
 
 const parseOptions = {
     parser: {
@@ -55,17 +57,35 @@ const fixCode = (code) => {
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
         replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
-        addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests
+        addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes
     ]
 
     declaredFunctions.forEach((fn) => {
         functionCaller(fn, ast)
     })
 
-    return recast.print(ast, {
+    return recastCode = recast.print(ast, {
         retainLines: true,
         quote: 'single'
       }).code;
+
+    //   try {
+    //     const formattedCode = prettier.format(recastCode, {
+    //         parser: 'babel',
+    //         templateCurlySpacing: true,
+    //         singleQuote: true,
+    //         semi: true,
+    //         trailingComma: 'es5',
+    //         tabWidth: 4,
+    //         bracketSpacing: true,
+    //     });
+
+    //     return formattedCode;
+    // } catch (error) {
+    //     console.error("Prettier formatlama hatası:", error);
+
+    //     return recastCode;
+    // }
 };
 
 module.exports = { fixCode };

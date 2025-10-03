@@ -297,7 +297,7 @@
     {
         "id": "ST6",
         "category": "Style Guide",
-        "desc": "Prefix variables holding DOM elements or nodes with a dollar sign ($)."
+        "desc": "Prefix variables holding DOM elements or nodes with a dollar sign ($). Don't capitalize first letter"
     },
     {
         "id": "ST7",
@@ -328,6 +328,11 @@
         "id": "ST12",
         "category": "Style Guide",
         "desc": "Use horizontal whitespace consistently (e.g., after keywords like 'if', around operators)."
+    },
+    {
+        "id": "ST13",
+        "category": "Style Guide",
+        "desc": "there should be a space between the text in curly braces."
     },
     {
         "id": "JS1",
@@ -558,6 +563,16 @@
         "id": "P8",
         "category": "Practices",
         "desc": "When using a class object with more than 3 properties, programmatically generate a corresponding selectors object."
+    },
+    {
+        "id": "P9",
+        "category": "Practices",
+        "desc": "If there is already a selectors object, don't create another one. Add to accumulator of the current one."
+    },
+    {
+        "id": "P10",
+        "category": "Practices",
+        "desc": "For self object, don't change the current structure at all. Method declarations should remain same."
     },
     {
         "id": "CH1",

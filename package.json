@@ -61,6 +61,7 @@
     "@google/generative-ai": "^0.24.1",
     "diff": "^8.0.2",
     "dotenv": "^17.2.2",
+    "prettier": "^3.6.2",
     "recast": "^0.23.11"
   }
 }
