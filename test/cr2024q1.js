@@ -1,6 +1,4 @@
 (() => {
-    'use strict';
-
     const isMobile = Insider.browser.isMobile();
     const builderId = isMobile ? 1147 : 1146;
     const variationId = Insider.campaign.userSegment.getActiveVariationByBuilderId(builderId);
