@@ -1,7 +1,7 @@
 const recast = require('recast');
 const { namedTypes: n, builders: b, visit } = recast.types;
 
-function makeObjectPropertiesShorthand(ast) {
+function convertObjectPropertiesToShorthand(ast) {
     visit(ast, {
         visitObjectExpression(path) {
             path.node.properties.forEach((prop, index) => {
@@ -28,4 +28,4 @@ function makeObjectPropertiesShorthand(ast) {
     return recast.print(ast).code;
 }
 
-module.exports = { makeObjectPropertiesShorthand };
+module.exports = { convertObjectPropertiesToShorthand };

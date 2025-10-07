@@ -248,7 +248,8 @@
             }
             ${ addToCart } {
                 font-size: 14px;
-                background-color: #007AFF;
+                background-color: rgb(200, 123, 145);
+                color: rgba(255, 255, 255, 0.8);
                 padding: 1.5vh;
                 display: flex;
                 justify-content: center;
@@ -280,9 +281,6 @@
                 justify-content: center;
                 align-items: center;
                 border-radius: 30px !important;
-                width: ${ isDesktop ? '70% !important' : '60% !important' };
-                margin-left: ${ isDesktop ? '15% !important' : '20% !important' };
-                height: ${ isDesktop ? '4.5vh !important' : '5vh !important' }
             }}`;
         }
 
@@ -456,7 +454,6 @@
     self.setEvents = () => {
         const { addToCart, skipButton, infoWrapper, closeButton, popUpAddToCart } = selectors;
         const { skuList } = config;
-        const method = isDesktop ? 'click' : 'mouseup';
         const couponCode = 'INSIDERTESTTR';
 
         Insider.eventManager.once('click.track:add:to:cart:clicks', addToCart, async (event) => {

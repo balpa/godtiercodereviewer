@@ -111,7 +111,7 @@ const activate = (context) => {
                     const staticallyFixedCode = await fixCode(code);
 
                     const genAI = new GoogleGenerativeAI(apiKey);
-                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
                     const prompt = `
                     Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
@@ -142,7 +142,6 @@ const activate = (context) => {
                     vscode.window.showErrorMessage('AI yanıtı alınırken bir hata oluştu. Detaylar için OUTPUT konsoluna bakın.');
                 }
             });
-
         } else if (choice.detail === 'static') {
              vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,

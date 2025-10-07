@@ -30,7 +30,12 @@ const { addErrorHandlerToRequests } = require('./functions/addErrorHandlerIfMiss
 const { addVariationIdForEventNamespaces } = require('./functions/addVariationIdForEventNamespaces')
 const { enhanceEventHandlers } = require('./functions/enhanceEventHandlers')
 const { convertToAccessNodes } = require('./functions/convertToAccessNodes');
-
+//FIX: optimizeBrowserChecks not working
+const { optimizeBrowserChecks } = require('./functions/optimizeBrowserChecks');
+const { formatTemplateLiterals } = require('./functions/formatTemplateLiterals');
+const { convertRGBtoHEX } = require('./functions/convertRGBtoHEX');
+const { convertLogicalOrToNullish } = require('./functions/convertLogicalOrToNullish');
+const { convertFallbackToOptionalChaining } = require('./functions/convertFallbackToOptionalChaining');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -57,7 +62,9 @@ const fixCode = (code) => {
         addDollarPrefixForAccessNodesParam, addDollarPrefixForOnElementLoadedParam, convertEs5ToArrowFunctions,
         replaceVarToConst, convertToFunctionExpression, convertNewArrayToLiteral, convertObjectPropertiesToShorthand,
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
-        addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes
+        addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
+        optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
+        formatTemplateLiterals
     ]
 
     declaredFunctions.forEach((fn) => {
