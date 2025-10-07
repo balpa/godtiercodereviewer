@@ -37,6 +37,7 @@ const { convertRGBtoHEX } = require('./functions/convertRGBtoHEX');
 const { convertLogicalOrToNullish } = require('./functions/convertLogicalOrToNullish');
 const { convertFallbackToOptionalChaining } = require('./functions/convertFallbackToOptionalChaining');
 const { ensureUseStrictInIIFE } = require('./functions/ensureUseStrictInIIFE');
+const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLiterals');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -65,7 +66,7 @@ const fixCode = (code) => {
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
-        ensureUseStrictInIIFE, formatTemplateLiterals
+        ensureUseStrictInIIFE, simplifyTemplateLiterals, formatTemplateLiterals
     ]
 
     declaredFunctions.forEach((fn) => {
