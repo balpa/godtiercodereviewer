@@ -66,7 +66,7 @@ const fixCode = (code) => {
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
-        ensureUseStrictInIIFE, simplifyTemplateLiterals, formatTemplateLiterals
+        simplifyTemplateLiterals, formatTemplateLiterals
     ]
 
     declaredFunctions.forEach((fn) => {
