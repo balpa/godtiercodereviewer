@@ -1,23 +1,36 @@
 const recast = require('recast');
 const { namedTypes: n, builders: b, visit } = recast.types;
 
+function isUseStrictStatement(stmt) {
+    if (stmt.directive === 'use strict') {
+        return true;
+    }
+
+    return (
+        n.ExpressionStatement.check(stmt) &&
+        stmt.expression &&
+        n.Literal.check(stmt.expression) &&
+        stmt.expression.value === 'use strict'
+    );
+}
+
 function ensureUseStrictInIIFE(ast) {
     visit(ast, {
         visitCallExpression(path) {
             const callee = path.node.callee;
 
-            const isFunction = n.FunctionExpression.check(callee) || n.ArrowFunctionExpression.check(callee);
+            if ((n.FunctionExpression.check(callee) || n.ArrowFunctionExpression.check(callee)) &&
+                n.BlockStatement.check(callee.body)
+            ) {
+                const bodyNode = callee.body;
 
-            if (isFunction && n.BlockStatement.check(callee.body)) {
-                const bodyStatements = callee.body.body;
-                const hasUseStrict = bodyStatements.length > 0 &&
-                    bodyStatements[0].directive === 'use strict';
+                bodyNode.body = bodyNode.body.filter(stmt => !isUseStrictStatement(stmt));
 
-                if (!hasUseStrict) {
-                    const useStrictDirective = b.expressionStatement(b.literal('use strict'));
+                const useStrictLiteral = b.literal('use strict');
+                const useStrictStatement = b.expressionStatement(useStrictLiteral);
+                useStrictStatement.directive = 'use strict';
 
-                    bodyStatements.unshift(useStrictDirective);
-                }
+                bodyNode.body.unshift(useStrictStatement);
             }
 
             this.traverse(path);
