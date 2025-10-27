@@ -14,8 +14,8 @@ function getWebviewContent(originalCode, fixedCode) {
 
         const lines = escapedValue.split('\n').filter(line => line.length > 0).map(line => {
             let prefix = '&nbsp;&nbsp;';
-            if (added) prefix = '+ ';
-            if (removed) prefix = '- ';
+            if (added) prefix = ' ';
+            if (removed) prefix = ' ';
             return `<span>${ prefix }${ line }</span>`;
         }).join('<br>');
 
