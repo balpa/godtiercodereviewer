@@ -20,19 +20,31 @@
     "commands": [
       {
         "command": "godtiercodereviewer.start",
-        "title": "Kodu İncele"
+        "title": "God Tier: Kodu İncele"
       },
       {
         "command": "godtiercodereviewer.applySuggestionAtCursor",
-        "title": "✅ Öneriyi Uygula"
+        "title": "✅ God Tier: Öneriyi Uygula"
       },
       {
         "command": "godtiercodereviewer.showDiffAtCursor",
-        "title": "👀 Değişiklikleri Gör"
+        "title": "👀 God Tier: Değişiklikleri Gör"
       },
       {
         "command": "godtiercodereviewer.rejectSuggestionAtCursor",
-        "title": "❌ Öneriyi Reddet"
+        "title": "❌ God Tier: Öneriyi Reddet"
+      },
+      {
+        "command": "godtier.applyFromCodeLens",
+        "title": "God Tier (CodeLens): Uygula"
+      },
+      {
+        "command": "godtier.showDiffFromCodeLens",
+        "title": "God Tier (CodeLens): Farkı Gör"
+      },
+      {
+        "command": "godtier.rejectFromCodeLens",
+        "title": "God Tier (CodeLens): Reddet"
       }
     ],
     "submenus": [

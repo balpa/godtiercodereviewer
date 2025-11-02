@@ -7,6 +7,7 @@ const diff = require('diff');
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const { GodTierCodeLensProvider } = require('./GodTierCodeLensProvider');
 
 let diagnosticCollection;
 
@@ -46,8 +47,11 @@ async function showDiff(oldText, newText, range) {
         fs.writeFileSync(newFileUri.fsPath, newText);
 
         const title = `God Tier Önerisi (Satır ${originalLine})`;
-        await vscode.commands.executeCommand('vscode.diff', oldFileUri, newFileUri, title);
-
+        
+        await vscode.commands.executeCommand('vscode.diff', oldFileUri, newFileUri, title, {
+            preview: false,
+            viewColumn: vscode.ViewColumn.Beside
+        });
     } catch (e) {
         console.error("Diff Error:", e);
         vscode.window.showErrorMessage('Fark görünümü açılırken bir hata oluştu.');
@@ -57,6 +61,46 @@ async function showDiff(oldText, newText, range) {
 const activate = (context) => {
     diagnosticCollection = vscode.languages.createDiagnosticCollection('godtier');
     context.subscriptions.push(diagnosticCollection);
+
+	const codeLensProvider = new GodTierCodeLensProvider(diagnosticCollection);
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider(
+            ['javascript', 'typescript', 'javascriptreact', 'typescriptreact'],
+            codeLensProvider
+        )
+    );
+
+	context.subscriptions.push(
+        vscode.commands.registerCommand('godtier.applyFromCodeLens', async (args) => {
+            const uri = vscode.Uri.parse(args.uri);
+            const range = new vscode.Range(args.range[0], args.range[1], args.range[2], args.range[3]);
+            const newText = args.newText;
+
+            const edit = new vscode.WorkspaceEdit();
+            edit.replace(uri, range, newText);
+            await vscode.workspace.applyEdit(edit);
+
+            removeDiagnostic(uri, range);
+            vscode.window.showInformationMessage('God Tier: Öneri uygulandı!');
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('godtier.rejectFromCodeLens', (args) => {
+            const uri = vscode.Uri.parse(args.uri);
+            const range = new vscode.Range(args.range[0], args.range[1], args.range[2], args.range[3]);
+            removeDiagnostic(uri, range);
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('godtier.showDiffFromCodeLens', async (args) => {
+            const oldText = args.oldText;
+            const newText = args.newText;
+            const range = new vscode.Range(args.range[0], args.range[1], args.range[2], args.range[3]);
+            await showDiff(oldText, newText, range);
+        })
+    );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('godtiercodereviewer.applySuggestionAtCursor', async () => {
