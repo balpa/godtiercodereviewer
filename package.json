@@ -3,6 +3,7 @@
   "displayName": "godtiercodereviewer",
   "description": "",
   "version": "0.0.1",
+  "publisher": "balpa",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -19,9 +20,50 @@
     "commands": [
       {
         "command": "godtiercodereviewer.start",
-        "title": "Start Code Review"
+        "title": "Kodu İncele"
+      },
+      {
+        "command": "godtiercodereviewer.applySuggestionAtCursor",
+        "title": "✅ Öneriyi Uygula"
+      },
+      {
+        "command": "godtiercodereviewer.showDiffAtCursor",
+        "title": "👀 Değişiklikleri Gör"
+      },
+      {
+        "command": "godtiercodereviewer.rejectSuggestionAtCursor",
+        "title": "❌ Öneriyi Reddet"
       }
     ],
+    "submenus": [
+      {
+        "id": "godtier.contextMenu",
+        "label": "God Tier Önerisi"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "godtier.contextMenu",
+          "group": "1_modification@1",
+          "when": "editorTextFocus && resourceLangId == 'javascript' || resourceLangId == 'typescript' || resourceLangId == 'javascriptreact' || resourceLangId == 'typescriptreact'"
+        }
+      ],
+      "godtier.contextMenu": [
+        {
+          "command": "godtiercodereviewer.applySuggestionAtCursor",
+          "group": "1_apply"
+        },
+        {
+          "command": "godtiercodereviewer.showDiffAtCursor",
+          "group": "1_apply"
+        },
+        {
+          "command": "godtiercodereviewer.rejectSuggestionAtCursor",
+          "group": "2_reject"
+        }
+      ]
+    },
     "configuration": {
       "title": "God Tier Code Reviewer",
       "properties": {

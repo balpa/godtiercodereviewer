@@ -1,149 +1,171 @@
-/* OPT-188630 START */
-((self) => {
-    'use strict';
-
-    const builderId = Insider.browser.isDesktop() ? 784 : 785;
-    const variationId = Insider.campaign.userSegment.getActiveVariationByBuilderId(builderId);
-
-    const buttonText = {
-        de_DE: 'Suchen',
-        fr_FR: 'Rechercher'
-    }[Insider.systemRules.call('getLang')];
+/* OPT-203039 START */
+Insider.__external.SOPCustomizer203039 = (config = {}) => {
+    const self = {};
+    const { variationId } = config;
 
     const classes = {
         style: `ins-custom-style-${ variationId }`,
+        closed: `ins-slider-closed-${ variationId }`,
+        wrapper: `ins-slider-vertical-banner-wrapper-${ variationId }`,
+        container: `ins-slider-vertical-banner-custom-container-${ variationId }`,
+        bannerText: `ins-slider-vertical-banner-custom-banner-text-${ variationId }`,
+        slideArrow: `ins-slider-vertical-banner-custom-slide-arrow-${ variationId }`,
+        notificationContent: `ins-notification-content-${ variationId }`,
+        pointerEventsNone: `ins-pointer-events-none-${ variationId }`, /* OPT-209562 */
         goal: `sp-custom-${ variationId }-1`,
-        wrapper: `ins-custom-button-wrapper-${ variationId }`,
-        flex: `ins-flex-${ variationId }`
     };
 
     const selectors = Insider.fns.keys(classes).reduce((createdSelector, key) => (
         createdSelector[key] = `.${ classes[key] }`, createdSelector
     ), {
-        appendElement: 'e2core-store-locator-input',
-        radioButton: '.delivery-group-selector__radio',
-        input: '.input',
-        checkoutWrapper: '.MainCheckoutSlot'
+        previewWrapper: `.ins-preview-wrapper-${ variationId }`,
+        contentWrapper: `.ins-content-wrapper-${ variationId }`,
+        overlay: `#ins-frameless-overlay[data-camp-id*=${ variationId }]`
     });
 
     self.init = () => {
-        if (variationId && Insider.campaign.get(variationId).hus ? Insider.storage.get('ucd-segment-data')[builderId] :
-            variationId) {
-            Insider.fns.onElementLoaded(selectors.appendElement, () => {
-                if (!Insider.campaign.isControlGroup(variationId)) {
-                    self.displayCampaign();
-                }
-
-                Insider.campaign.custom.show(variationId);
+        if (variationId) {
+            Insider.fns.onElementLoaded(selectors.previewWrapper, () => {
+                self.reset();
+                self.buildCSS();
+                self.buildHTML();
+                self.setEvents();
+                self.checkMinimizeStatus();
+                self.removeOverlay();
             }).listen();
         }
     };
 
-    self.displayCampaign = () => {
-        self.reset();
-        self.buildCSS();
-        self.buildHTML();
-        self.adjustPartnerElement();
-        self.setEvents();
-        self.setMutationObserver();
-    };
-
     self.reset = () => {
-        const { style, wrapper, appendElement } = selectors;
-
-        if (Insider.__external.mutationObserver188630) {
-            Insider.__external.mutationObserver188630.disconnect();
-        }
+        const { style, wrapper } = selectors;
 
         Insider.dom(`${ style }, ${ wrapper }`).remove();
-        Insider.dom(appendElement).removeClass(classes.flex);
     };
 
     self.buildCSS = () => {
-        const { wrapper, flex } = selectors;
+        const { wrapper, container, slideArrow, bannerText, notificationContent, closed,
+            pointerEventsNone } = selectors; /* OPT-209562 */
 
         const customStyle =
         `${ wrapper } {
-            font-size: 15px;
-            margin-top: 24px;
-            margin-left: 10px;
-            padding: 0px 25px;
-            letter-spacing: 0.5px;
-            justify-content: center;
             display: flex;
-            align-items: center;
-            background-color: black;
-            color: white;
-            font-weight: bold;
+            height: 100%;
+            background-color: #2806f8;
+            width: 44px;
+            z-index: 1;
+            pointer-events: all /* OPT-209562 */
+        }
+        ${ closed } {
+            transform: translateX(500px);
+        }
+        ${ notificationContent } {
+            transition: 0.5s;
+        }
+        /* OPT-209562 START */
+        ${ pointerEventsNone } {
+            pointer-events: none;
+        }
+        /* OPT-209562 END */    
+        ${ slideArrow } {
+            width: 10px;
+            height: 10px;
+            border-top: 1.5px solid white;
+            border-left: 1.5px solid white;
+            transform: rotate(135deg);
+            transition: 0.5s;
             cursor: pointer;
+            padding: 4px;
         }
-        ${ flex } {
-            display: flex;
+        ${ bannerText } {
+            color: white;
+            writing-mode: vertical-lr;            
+            transform: rotate(180deg);
+            text-orientation: sideways; /* OPT-206799 */
+            font-size: 14px;
+            font-family: proxima-nova;
+            font-weight: 700 !important;
+            margin-top: 5px;
         }
-        @media only screen and (max-width: 767px) {
-            ${ wrapper } {
-                padding: 0px 10px;
-            }
+        ${ container } {
+            height: 100%;
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
         }`;
 
         Insider.dom('<style>').addClass(classes.style).html(customStyle).appendTo('head');
     };
 
     self.buildHTML = () => {
-        const { wrapper, goal } = classes;
+        const { wrapper, container, bannerText, slideArrow } = classes;
+        const { sliderVerticalBannerText } = config;
 
-        const html = `<div class="${ wrapper } ${ goal }">${ buttonText }</div>`;
+        const outerHtml =
+        `<div class="${ wrapper }">
+            <div class="${ container }">
+                <div class="${ slideArrow }"></div>
+                <div class="${ bannerText }">${ sliderVerticalBannerText }</div>
+            </div>
+        </div>`;
 
-        Insider.dom(selectors.appendElement).append(html);
-    };
-
-    self.adjustPartnerElement = () => {
-        const { appendElement } = selectors;
-
-        Insider.fns.onElementLoaded(appendElement, ($node) => {
-            $node.addClass(classes.flex);
-        }).listen();
+        Insider.dom(selectors.contentWrapper).append(outerHtml);
     };
 
     self.setEvents = () => {
-        const { radioButton, wrapper, input } = selectors;
+        /* OPT-209562 START */
+        const { slideArrow, notificationContent, wrapper, previewWrapper } = selectors;
+        const { closed, pointerEventsNone } = classes;
+        /* OPT-209562 END */
+        const $slideArrow = Insider.dom(slideArrow);
+        const $previewWrapper = Insider.dom(previewWrapper); /* OPT-209562 */
 
-        Insider.eventManager.once(`change.init:on:rerender-${ variationId }`, radioButton, () => {
-            self.displayCampaign();
-        });
+        Insider.eventManager.once(`click.toggle:slider:${ variationId }`, wrapper, () => {
+            Insider.dom(notificationContent).toggleClass(closed);
 
-        Insider.eventManager.once(`click.trigger:search:${ variationId }`, wrapper, () => {
-            const $searchInput = Insider.dom(input).getNode(0);
+            if (Insider.dom(notificationContent).hasClass(closed)) {
+                $slideArrow.css('transform', 'rotate(-45deg)');
 
-            const event = new KeyboardEvent('keydown', {
-                key: 'Enter',
-                keyCode: 13,
-                code: 'Enter',
-                which: 13,
-                bubbles: true
-            });
+                $previewWrapper.addClass(pointerEventsNone); /* OPT-209562 */
+            } else {
+                $slideArrow.css('transform', 'rotate(135deg)');
 
-            $searchInput?.dispatchEvent(event);
-        });
-    };
-
-    self.setMutationObserver = () => {
-        const { checkoutWrapper, radioButton } = selectors;
-
-        Insider.__external.mutationObserver188630 = new MutationObserver(() => {
-            if (Insider.dom(`${ radioButton }:last`).is(':checked')) {
-                self.displayCampaign();
+                $previewWrapper.removeClass(pointerEventsNone); /* OPT-209562 */
             }
         });
-
-        Insider.fns.onElementLoaded(checkoutWrapper, () => {
-            Insider.__external.mutationObserver188630.observe(
-                Insider.dom(checkoutWrapper).getNode(0),
-                { childList: true, subtree: true }
-            );
-        }).listen();
     };
 
-    return self.init();
-})({});
-/* OPT-188630 END */
+    self.checkMinimizeStatus = () => {
+        /* OPT-209562 START */
+        const { notificationContent, slideArrow, previewWrapper } = selectors;
+        const { closed, pointerEventsNone } = classes;
+        /* OPT-209562 END */
+        const defaultExpanded = config.defaultExpanded[Insider.browser.getPlatform()];
+        const $notificationContent = Insider.dom(notificationContent);
+        const $slideArrow = Insider.dom(slideArrow);
+        const $previewWrapper = Insider.dom(previewWrapper); /* OPT-209562 */
+
+        if (defaultExpanded && $notificationContent.hasClass(closed)) {
+            $notificationContent.removeClass(closed);
+            $previewWrapper.removeClass(pointerEventsNone); /* OPT-209562 */
+
+            $slideArrow.css('transform', 'rotate(135deg)');
+        } else if (!defaultExpanded) {
+            $notificationContent.addClass(closed);
+            $previewWrapper.addClass(pointerEventsNone); /* OPT-209562 */
+
+            $slideArrow.css('transform', 'rotate(-45deg)');
+        }
+    };
+
+    self.removeOverlay = () => {
+        Insider.dom(selectors.overlay).hide();
+    };
+
+    self.init();
+};
+
+true;
+/* OPT-203039 END */
