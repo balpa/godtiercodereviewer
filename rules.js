@@ -1,4 +1,4 @@
-[
+const rulesArray = [
     {
         "id": "V1",
         "category": "Variables",
@@ -619,4 +619,6 @@
         "category": "CSS & HTML",
         "desc": "Use CSS media queries for responsive styles instead of conditional logic in JavaScript."
     }
-]
+];
+
+module.exports = rulesArray;

@@ -20,7 +20,7 @@ async function closeGodTierDiffTab(range) {
     if (!range) return;
 
     const line = range.start.line + 1;
-    const title = `God Tier Önerisi (Satır ${line})`;
+    const title = `GodTierCodeReviewer Suggestion (Line ${line})`;
 
     const tabToClose = vscode.window.tabGroups.all
         .flatMap(group => group.tabs)
@@ -30,7 +30,7 @@ async function closeGodTierDiffTab(range) {
         try {
             await vscode.window.tabGroups.close(tabToClose);
         } catch (e) {
-            console.error("Diff sekmesi kapatılırken hata:", e);
+            console.error("Error closing diff tab:", e);
         }
     }
 }
@@ -85,8 +85,8 @@ async function showDiff(oldText, newText, range) {
     try {
         const originalLine = range.start.line + 1;
         const tempDir = os.tmpdir();
-        const oldFileName = `godtier.eski.L${originalLine}.js`;
-        const newFileName = `godtier.yeni.L${originalLine}.js`;
+        const oldFileName = `godtier.old.L${originalLine}.js`;
+        const newFileName = `godtier.new.L${originalLine}.js`;
 
         const oldFileUri = vscode.Uri.file(path.join(tempDir, oldFileName));
         const newFileUri = vscode.Uri.file(path.join(tempDir, newFileName));
@@ -94,7 +94,7 @@ async function showDiff(oldText, newText, range) {
         fs.writeFileSync(oldFileUri.fsPath, oldText);
         fs.writeFileSync(newFileUri.fsPath, newText);
 
-        const title = `God Tier Önerisi (Satır ${originalLine})`;
+        const title = `GodTierCodeReviewer Suggestion (Line ${originalLine})`;
         await vscode.commands.executeCommand('vscode.diff', oldFileUri, newFileUri, title, {
             preview: false,
             viewColumn: vscode.ViewColumn.Beside
@@ -102,7 +102,7 @@ async function showDiff(oldText, newText, range) {
 
     } catch (e) {
         console.error("Diff Error:", e);
-        vscode.window.showErrorMessage('Fark görünümü açılırken bir hata oluştu.');
+        vscode.window.showErrorMessage('An error occurred while opening the diff view.');
     }
 }
 
@@ -120,7 +120,7 @@ function updateSuggestionContext() {
 
 async function applyAIFix() {
     if (!currentAIFixData) {
-        vscode.window.showErrorMessage('Uygulanacak düzeltme bulunamadı.');
+        vscode.window.showErrorMessage('No fix to apply was found.');
         return;
     }
 
@@ -131,13 +131,13 @@ async function applyAIFix() {
         edit.replace(editor.document.uri, range, fixedCode);
         await vscode.workspace.applyEdit(edit);
         
-        vscode.window.showInformationMessage('God Tier AI: Değişiklikler başarıyla uygulandı!');
+        vscode.window.showInformationMessage('GodTierCodeReviewer AI: Changes successfully applied!');
         
         if (currentWebviewPanel) {
             currentWebviewPanel.dispose();
         }
     } catch (error) {
-        vscode.window.showErrorMessage('Değişiklikler uygulanırken bir hata oluştu.');
+        vscode.window.showErrorMessage('An error occurred while applying changes.');
         console.error('Apply fix error:', error);
     }
 }
@@ -146,7 +146,7 @@ async function rejectAIFix() {
     if (currentWebviewPanel) {
         currentWebviewPanel.dispose();
     }
-    vscode.window.showInformationMessage('God Tier AI: Değişiklikler reddedildi.');
+    vscode.window.showInformationMessage('GodTierCodeReviewer AI: Changes rejected.');
 }
 
 
@@ -192,7 +192,7 @@ const activate = (context) => {
             await vscode.workspace.applyEdit(edit);
 
             await removeDiagnostic(uri, range);
-            vscode.window.showInformationMessage('God Tier: Öneri uygulandı!');
+            vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
         })
     );
 
@@ -219,7 +219,7 @@ const activate = (context) => {
             const diagnostic = getActiveDiagnostic(editor);
 
             if (!diagnostic) {
-                vscode.window.showWarningMessage('God Tier: İmleciniz bir önerinin üzerinde değil.');
+                vscode.window.showWarningMessage('GodTierCodeReviewer: Your cursor is not on a suggestion.');
                 return;
             }
 
@@ -232,7 +232,7 @@ const activate = (context) => {
             await vscode.workspace.applyEdit(edit);
 
             await removeDiagnostic(uri, range);
-            vscode.window.showInformationMessage('God Tier: Öneri uygulandı!');
+            vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
         })
     );
 
@@ -242,7 +242,7 @@ const activate = (context) => {
             const diagnostic = getActiveDiagnostic(editor);
 
             if (!diagnostic) {
-                vscode.window.showWarningMessage('God Tier: İmleciniz bir önerinin üzerinde değil.');
+                vscode.window.showWarningMessage('GodTierCodeReviewer: Your cursor is not on a suggestion.');
                 return;
             }
             
@@ -256,7 +256,7 @@ const activate = (context) => {
             const diagnostic = getActiveDiagnostic(editor);
 
             if (!diagnostic) {
-                vscode.window.showWarningMessage('God Tier: İmleciniz bir önerinin üzerinde değil.');
+                vscode.window.showWarningMessage('GodTierCodeReviewer: Your cursor is not on a suggestion.');
                 return;
             }
 
@@ -306,12 +306,12 @@ const activate = (context) => {
 
         const choice = await vscode.window.showQuickPick(
             [
-                { label: '$(sparkle) AI Destekli Düzeltme', description: 'Kodu Gemini AI ve statik kurallarla birlikte analiz eder.', detail: 'ai' },
-                { label: '$(check) Statik Düzeltme', description: 'Kodu sadece statik kurallarla hızlıca düzeltir.', detail: 'static' }
+                { label: '$(sparkle) AI-Assisted Fix', description: 'Analyzes code with Gemini AI and static rules combined.', detail: 'ai' },
+                { label: '$(check) Static Fix', description: 'Quickly fixes code using static rules only.', detail: 'static' }
             ],
             {
-                placeHolder: 'Lütfen bir düzeltme türü seçin:',
-                title: 'God Tier Code Reviewer'
+                placeHolder: 'Please select a fix type:',
+                title: 'GodTierCodeReviewer'
             }
         );
 
@@ -323,7 +323,7 @@ const activate = (context) => {
             if (choice.detail === 'ai') {
                 return await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
-                    title: "God Tier Reviewer (AI) kodunuzu analiz ediyor...",
+                    title: "GodTierCodeReviewer (AI) is analyzing your code...",
                     cancellable: false
                 }, async () => {
                     try {
@@ -331,7 +331,7 @@ const activate = (context) => {
                         const apiKey = configuration.get('apiKey');
 
                         if (!apiKey) {
-                            vscode.window.showErrorMessage('Google GenAI API Key bulunamadı. Lütfen ayarlardan girin.');
+                            vscode.window.showErrorMessage('Google GenAI API Key not found. Please enter it in settings.');
                             return null;
                         }
 
@@ -339,16 +339,56 @@ const activate = (context) => {
                         const genAI = new GoogleGenerativeAI(apiKey);
                         const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-                        const prompt = `
-                        Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
-                        Görev: Sana verilen JavaScript kodunu, [KURALLAR] bölümündeki JSON listesine göre analiz et. Koddaki tüm kural ihlallerini düzelterek kodu yeniden yaz. Kodda var olan değişkenlerde gereksiz değişiklik yapma. [KURALLAR] bölümündeki JSON listesindekileri kesinlikle uygula.
-                        **ÖNEMLİ KURAL: Template literal içinde bulunan çok satırlı HTML ve CSS kod bloklarının formatı (boşluklar, girintiler ve satır sonları) okunabilirlik için kasıtlı olarak o şekilde yazılmıştır. Bu blokların iç yapısını KESİNLİKLE DEĞİŞTİRME, birebir koru.**
-                        [KURALLAR]
-                        ${JSON.stringify(rules)}
-                        [ORİJİNAL KOD]
-                        ${staticallyFixedCode}
-                        [ÇIKTI FORMATI]
-                        Yanıtın SADECE ve SADECE düzeltilmiş ham JavaScript kodunun kendisi OLMALIDIR. Başka hiçbir metin, açıklama, "İşte düzeltilmiş kod:" gibi giriş cümleleri veya \`\`\`javascript gibi markdown formatı ekleme. Kodun syntax olarak sorunsuz olmasına ekstra dikkat et. Tüm köşeli parantezler düzgün şekilde kapanmalıdır. Babel ile syntax düzeltip SADECE kodu çıktı olarak ver.`;
+                        const prompt = `You are an expert JavaScript code reviewer and refactoring specialist. Your task is to analyze and refactor the provided code according to strict coding standards.
+
+## ANALYSIS REQUIREMENTS
+1. Review the code against each rule in the [RULES] section below
+2. Identify ALL violations systematically by category
+3. Apply fixes ONLY for verified rule violations
+4. Preserve code behavior and logic completely
+5. Maintain existing variable names unless they violate naming conventions (category: Naming, Variables)
+
+## CRITICAL CONSTRAINTS
+⚠️ PRESERVE TEMPLATE LITERAL FORMATTING: Multi-line HTML/CSS within template literals (\`...\`) must retain their exact formatting (spaces, indentation, line breaks). DO NOT reformat these blocks.
+⚠️ SYNTAX INTEGRITY: Ensure all brackets, parentheses, and braces are properly matched and closed.
+⚠️ NO OVER-ENGINEERING: Apply only the rules listed. Do not add unnecessary abstractions.
+⚠️ EXISTING LOGIC: Do not alter the functional behavior of the code.
+
+## RULES REFERENCE
+The rules are organized by category with unique IDs. Each rule must be enforced strictly.
+
+Categories:
+- Variables (V1-V8): Variable naming, usage, and declaration
+- Functions (F1-F16): Function design, structure, and best practices  
+- Objects & Data (O1-O2): Object access patterns
+- Classes (C1-C3): Class design and inheritance
+- SOLID (S1-S5): SOLID principles
+- Concurrency (CR1): Async/await patterns
+- Error Handling (E1): Error handling requirements
+- Formatting (FR1-FR2): Code organization
+- Comments (CM1-CM3): Comment standards
+- Insider API (I1-I13): Framework-specific API usage
+- Style Guide (ST1-ST13): Code style requirements
+- General JS (JS1-JS25): JavaScript best practices
+- Naming (N1-N13): Naming conventions
+- Practices (P1-P10): Development practices
+- CSS & HTML (CH1-CH9): Markup and styling standards
+
+Full Rules List:
+${JSON.stringify(rules, null, 2)}
+
+## CODE TO REFACTOR
+${staticallyFixedCode}
+
+## OUTPUT REQUIREMENTS
+- Return ONLY the refactored JavaScript code
+- NO explanations, comments about changes, or markdown code blocks
+- NO introductory text like "Here is the code:" or "The refactored code:"
+- NO \`\`\`javascript markers or any formatting wrappers
+- The output must be valid, executable JavaScript that can be directly parsed
+- Ensure proper syntax: all brackets/braces/parentheses must be closed correctly
+
+OUTPUT THE REFACTORED CODE NOW:`;
 
                         const result = await model.generateContent(prompt);
                         const response = result.response;
@@ -363,21 +403,21 @@ const activate = (context) => {
 
                     } catch (error) {
                         console.error("Google GenAI Error:", error);
-                        vscode.window.showErrorMessage('AI yanıtı alınırken bir hata oluştu. Detaylar için OUTPUT konsoluna bakın.');
+                        vscode.window.showErrorMessage('An error occurred while getting AI response. Check the OUTPUT console for details.');
                         return null;
                     }
                 });
             } else if (choice.detail === 'static') {
                 return await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
-                    title: "Statik kod düzeltmeleri uygulanıyor...",
+                    title: "Applying static code fixes...",
                     cancellable: false
                 }, async () => {
                     try {
                         return await fixCode(originalCode);
                     } catch (error) {
                         console.error("Static Fix Error:", error);
-                        vscode.window.showErrorMessage('Statik düzeltme sırasında bir hata oluştu.');
+                        vscode.window.showErrorMessage('An error occurred during static fix.');
                         return null;
                     }
                 });
@@ -387,11 +427,11 @@ const activate = (context) => {
         const finalCode = await getFinalCode();
 
         if (!finalCode || !finalCode.trim() || originalCode === finalCode) {
-            vscode.window.showInformationMessage("Koda uygulanacak bir değişiklik bulunamadı.");
+            vscode.window.showInformationMessage("No changes to apply were found in the code.");
             return;
         }
 
-        // AI mode için webview göster
+        // Show webview for AI mode
         if (choice.detail === 'ai') {
             if (currentWebviewPanel) {
                 currentWebviewPanel.dispose();
@@ -399,7 +439,7 @@ const activate = (context) => {
 
             currentWebviewPanel = vscode.window.createWebviewPanel(
                 'godtierAIReview',
-                'God Tier AI Review',
+                'GodTierCodeReviewer AI Review',
                 vscode.ViewColumn.Beside,
                 {
                     enableScripts: true
@@ -434,10 +474,6 @@ const activate = (context) => {
 
             return;
         }
-
-        // ========================================
-        // Static mode: Satır bazlı öneriler ve CodeLens
-        // ========================================
 
         const patch = diff.structuredPatch(
             'original.js',
@@ -485,7 +521,7 @@ const activate = (context) => {
 
             const diagnostic = new vscode.Diagnostic(
                 diagnosticRange,
-                'God Tier: Öneri için sağ tıkla veya kısayol kullan (Alt+A/R/D).', 
+                'GodTierCodeReviewer: Right-click for suggestion or use shortcuts (Alt+A/R/D).', 
                 vscode.DiagnosticSeverity.Warning
             );
 
@@ -507,8 +543,8 @@ const activate = (context) => {
             vscode.commands.executeCommand('editor.action.marker.nextInFiles');
             updateSuggestionContext(); 
 
-            const message = `${diagnostics.length} adet kod önerisi bulundu. Önerileri görmek için altı çizili alanlara sağ tıklayın veya klavye kısayollarını kullanın.`;
-            const actionTitle = 'İlk Öneriye Git';
+            const message = `${diagnostics.length} code suggestion(s) found. Right-click on underlined areas or use keyboard shortcuts to view suggestions.`;
+            const actionTitle = 'Go to First Suggestion';
 
             vscode.window.showInformationMessage(message, actionTitle).then(selection => {
                 if (selection === actionTitle) {
@@ -517,14 +553,14 @@ const activate = (context) => {
             });
 
         } else {
-            vscode.window.showInformationMessage("Fark analizi sonucunda uygulanacak değişiklik bulunamadı.");
+            vscode.window.showInformationMessage("No changes to apply were found after diff analysis.");
         }
     });
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 900);
     statusBarItem.command = commandId;
     statusBarItem.text = '$(tools) Review Code';
-    statusBarItem.tooltip = 'Run God Tier Code Reviewer';
+    statusBarItem.tooltip = 'Run GodTierCodeReviewer';
     statusBarItem.show();
 
     context.subscriptions.push(disposable, statusBarItem);
