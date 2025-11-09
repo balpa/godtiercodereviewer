@@ -8,10 +8,51 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { GodTierCodeLensProvider } = require('./GodTierCodeLensProvider');
+const { getWebviewContent } = require('./getWebviewContent');
 
 let diagnosticCollection;
+let currentSuggestionContext = false;
+let suggestionDecorationType;
+let currentWebviewPanel = null;
+let currentAIFixData = null;
 
-function removeDiagnostic(uri, rangeToRemove) {
+async function closeGodTierDiffTab(range) {
+    if (!range) return;
+
+    const line = range.start.line + 1;
+    const title = `God Tier Önerisi (Satır ${line})`;
+
+    const tabToClose = vscode.window.tabGroups.all
+        .flatMap(group => group.tabs)
+        .find(tab => tab.label === title);
+
+    if (tabToClose) {
+        try {
+            await vscode.window.tabGroups.close(tabToClose);
+        } catch (e) {
+            console.error("Diff sekmesi kapatılırken hata:", e);
+        }
+    }
+}
+
+
+function updateDecorations(editor) {
+    if (!editor || !diagnosticCollection || !suggestionDecorationType) return;
+
+    const diagnostics = diagnosticCollection.get(editor.document.uri);
+    if (!diagnostics) {
+        editor.setDecorations(suggestionDecorationType, []);
+        return;
+    }
+
+    const godtierDiagnostics = diagnostics.filter(d => d.source === 'godtier');
+    const decorationRanges = godtierDiagnostics.map(d => d.range);
+    
+    editor.setDecorations(suggestionDecorationType, decorationRanges);
+}
+
+
+async function removeDiagnostic(uri, rangeToRemove) {
     const diagnostics = diagnosticCollection.get(uri);
     if (!diagnostics) return;
 
@@ -19,6 +60,13 @@ function removeDiagnostic(uri, rangeToRemove) {
         !d.range.isEqual(rangeToRemove)
     );
     diagnosticCollection.set(uri, newDiagnostics);
+
+    const editor = vscode.window.activeTextEditor;
+    if (editor && editor.document.uri.toString() === uri.toString()) {
+        updateDecorations(editor);
+    }
+
+    await closeGodTierDiffTab(rangeToRemove);
 }
 
 function getActiveDiagnostic(editor) {
@@ -47,22 +95,73 @@ async function showDiff(oldText, newText, range) {
         fs.writeFileSync(newFileUri.fsPath, newText);
 
         const title = `God Tier Önerisi (Satır ${originalLine})`;
-        
         await vscode.commands.executeCommand('vscode.diff', oldFileUri, newFileUri, title, {
             preview: false,
             viewColumn: vscode.ViewColumn.Beside
         });
+
     } catch (e) {
         console.error("Diff Error:", e);
         vscode.window.showErrorMessage('Fark görünümü açılırken bir hata oluştu.');
     }
 }
 
+function updateSuggestionContext() {
+    const editor = vscode.window.activeTextEditor;
+    const diagnostic = getActiveDiagnostic(editor);
+    
+    const newContextValue = !!diagnostic; 
+
+    if (currentSuggestionContext !== newContextValue) {
+        vscode.commands.executeCommand('setContext', 'godtier.isActiveSuggestion', newContextValue);
+        currentSuggestionContext = newContextValue;
+    }
+}
+
+async function applyAIFix() {
+    if (!currentAIFixData) {
+        vscode.window.showErrorMessage('Uygulanacak düzeltme bulunamadı.');
+        return;
+    }
+
+    const { editor, range, fixedCode } = currentAIFixData;
+    
+    try {
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(editor.document.uri, range, fixedCode);
+        await vscode.workspace.applyEdit(edit);
+        
+        vscode.window.showInformationMessage('God Tier AI: Değişiklikler başarıyla uygulandı!');
+        
+        if (currentWebviewPanel) {
+            currentWebviewPanel.dispose();
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage('Değişiklikler uygulanırken bir hata oluştu.');
+        console.error('Apply fix error:', error);
+    }
+}
+
+async function rejectAIFix() {
+    if (currentWebviewPanel) {
+        currentWebviewPanel.dispose();
+    }
+    vscode.window.showInformationMessage('God Tier AI: Değişiklikler reddedildi.');
+}
+
+
 const activate = (context) => {
     diagnosticCollection = vscode.languages.createDiagnosticCollection('godtier');
     context.subscriptions.push(diagnosticCollection);
 
-	const codeLensProvider = new GodTierCodeLensProvider(diagnosticCollection);
+    suggestionDecorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: new vscode.ThemeColor('editor.findMatchHighlightBackground'),
+        isWholeLine: false
+    });
+    context.subscriptions.push(suggestionDecorationType); 
+
+
+    const codeLensProvider = new GodTierCodeLensProvider(diagnosticCollection);
     context.subscriptions.push(
         vscode.languages.registerCodeLensProvider(
             ['javascript', 'typescript', 'javascriptreact', 'typescriptreact'],
@@ -70,7 +169,19 @@ const activate = (context) => {
         )
     );
 
-	context.subscriptions.push(
+    context.subscriptions.push(
+        vscode.window.onDidChangeTextEditorSelection(updateSuggestionContext)
+    );
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(e => {
+            updateSuggestionContext();
+            if (e) {
+                updateDecorations(e);
+            }
+        })
+    );
+
+    context.subscriptions.push(
         vscode.commands.registerCommand('godtier.applyFromCodeLens', async (args) => {
             const uri = vscode.Uri.parse(args.uri);
             const range = new vscode.Range(args.range[0], args.range[1], args.range[2], args.range[3]);
@@ -80,16 +191,16 @@ const activate = (context) => {
             edit.replace(uri, range, newText);
             await vscode.workspace.applyEdit(edit);
 
-            removeDiagnostic(uri, range);
+            await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('God Tier: Öneri uygulandı!');
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('godtier.rejectFromCodeLens', (args) => {
+        vscode.commands.registerCommand('godtier.rejectFromCodeLens', async (args) => {
             const uri = vscode.Uri.parse(args.uri);
             const range = new vscode.Range(args.range[0], args.range[1], args.range[2], args.range[3]);
-            removeDiagnostic(uri, range);
+            await removeDiagnostic(uri, range);
         })
     );
 
@@ -101,7 +212,7 @@ const activate = (context) => {
             await showDiff(oldText, newText, range);
         })
     );
-
+    
     context.subscriptions.push(
         vscode.commands.registerCommand('godtiercodereviewer.applySuggestionAtCursor', async () => {
             const editor = vscode.window.activeTextEditor;
@@ -120,13 +231,13 @@ const activate = (context) => {
             edit.replace(uri, range, newText);
             await vscode.workspace.applyEdit(edit);
 
-            removeDiagnostic(uri, range);
+            await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('God Tier: Öneri uygulandı!');
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('godtiercodereviewer.rejectSuggestionAtCursor', () => {
+        vscode.commands.registerCommand('godtiercodereviewer.rejectSuggestionAtCursor', async () => {
             const editor = vscode.window.activeTextEditor;
             const diagnostic = getActiveDiagnostic(editor);
 
@@ -135,7 +246,7 @@ const activate = (context) => {
                 return;
             }
             
-            removeDiagnostic(editor.document.uri, diagnostic.range);
+            await removeDiagnostic(editor.document.uri, diagnostic.range);
         })
     );
 
@@ -154,7 +265,7 @@ const activate = (context) => {
             await showDiff(oldText, newText, diagnostic.range);
         })
     );
-
+    
     const commandId = 'godtiercodereviewer.start';
 
     const disposable = vscode.commands.registerCommand(commandId, async () => {
@@ -166,6 +277,12 @@ const activate = (context) => {
         }
 
         diagnosticCollection.clear();
+        editor.setDecorations(suggestionDecorationType, []); 
+        
+        if (currentSuggestionContext) {
+            vscode.commands.executeCommand('setContext', 'godtier.isActiveSuggestion', false);
+            currentSuggestionContext = false;
+        }
 
         const selection = editor.selection;
         let originalCode, range;
@@ -220,7 +337,7 @@ const activate = (context) => {
 
                         const staticallyFixedCode = await fixCode(originalCode);
                         const genAI = new GoogleGenerativeAI(apiKey);
-                        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+                        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
                         const prompt = `
                         Rol: Sen, sağlanan kod standartlarını uygulayan uzman bir yazılım geliştiricisisin.
@@ -274,6 +391,54 @@ const activate = (context) => {
             return;
         }
 
+        // AI mode için webview göster
+        if (choice.detail === 'ai') {
+            if (currentWebviewPanel) {
+                currentWebviewPanel.dispose();
+            }
+
+            currentWebviewPanel = vscode.window.createWebviewPanel(
+                'godtierAIReview',
+                'God Tier AI Review',
+                vscode.ViewColumn.Beside,
+                {
+                    enableScripts: true
+                }
+            );
+
+            currentAIFixData = {
+                editor: editor,
+                range: range,
+                originalCode: originalCode,
+                fixedCode: finalCode
+            };
+
+            currentWebviewPanel.webview.html = getWebviewContent(originalCode, finalCode);
+
+            currentWebviewPanel.webview.onDidReceiveMessage(
+                message => {
+                    if (message.command === 'applyFix') {
+                        applyAIFix();
+                    } else if (message.command === 'rejectFix') {
+                        rejectAIFix();
+                    }
+                },
+                undefined,
+                context.subscriptions
+            );
+
+            currentWebviewPanel.onDidDispose(() => {
+                currentWebviewPanel = null;
+                currentAIFixData = null;
+            });
+
+            return;
+        }
+
+        // ========================================
+        // Static mode: Satır bazlı öneriler ve CodeLens
+        // ========================================
+
         const patch = diff.structuredPatch(
             'original.js',
             'fixed.js',
@@ -320,7 +485,7 @@ const activate = (context) => {
 
             const diagnostic = new vscode.Diagnostic(
                 diagnosticRange,
-                'God Tier: Öneri için sağ tıkla.',
+                'God Tier: Öneri için sağ tıkla veya kısayol kullan (Alt+A/R/D).', 
                 vscode.DiagnosticSeverity.Warning
             );
 
@@ -337,10 +502,12 @@ const activate = (context) => {
 
         if (diagnostics.length > 0) {
             diagnosticCollection.set(editor.document.uri, diagnostics);
+            updateDecorations(editor); 
 
             vscode.commands.executeCommand('editor.action.marker.nextInFiles');
+            updateSuggestionContext(); 
 
-            const message = `${diagnostics.length} adet kod önerisi bulundu. Önerileri görmek için altı çizili alanlara sağ tıklayın.`;
+            const message = `${diagnostics.length} adet kod önerisi bulundu. Önerileri görmek için altı çizili alanlara sağ tıklayın veya klavye kısayollarını kullanın.`;
             const actionTitle = 'İlk Öneriye Git';
 
             vscode.window.showInformationMessage(message, actionTitle).then(selection => {
