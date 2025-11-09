@@ -319,11 +319,50 @@ const activate = (context) => {
             return;
         }
 
+        let selectedModel = 'gemini-2.5-pro';
+        if (choice.detail === 'ai') {
+            const modelChoice = await vscode.window.showQuickPick(
+                [
+                    { 
+                        label: '$(star-full) Gemini 2.5 Pro', 
+                        description: 'Most powerful model - Best quality',
+                        detail: 'gemini-2.5-pro'
+                    },
+                    { 
+                        label: '$(flame) Gemini 2.5 Flash', 
+                        description: 'Fast and highly efficient',
+                        detail: 'gemini-2.5-flash'
+                    },
+                    { 
+                        label: '$(zap) Gemini 2.0 Flash Experimental', 
+                        description: 'Latest experimental model - Fast and efficient',
+                        detail: 'gemini-2.0-flash-exp',
+                        picked: true
+                    },
+                    { 
+                        label: '$(rocket) Gemini 2.0 Flash Thinking Experimental', 
+                        description: 'Advanced reasoning capabilities',
+                        detail: 'gemini-2.0-flash-thinking-exp-1219'
+                    }
+                ],
+                {
+                    placeHolder: 'Select AI model:',
+                    title: 'GodTierCodeReviewer - Choose Model'
+                }
+            );
+
+            if (!modelChoice) {
+                return;
+            }
+
+            selectedModel = modelChoice.detail;
+        }
+
         const getFinalCode = async () => {
             if (choice.detail === 'ai') {
                 return await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
-                    title: "GodTierCodeReviewer (AI) is analyzing your code...",
+                    title: `GodTierCodeReviewer (${selectedModel}) is analyzing your code...`,
                     cancellable: false
                 }, async () => {
                     try {
@@ -337,7 +376,7 @@ const activate = (context) => {
 
                         const staticallyFixedCode = await fixCode(originalCode);
                         const genAI = new GoogleGenerativeAI(apiKey);
-                        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+                        const model = genAI.getGenerativeModel({ model: selectedModel });
 
                         const prompt = `You are an expert JavaScript code reviewer and refactoring specialist. Your task is to analyze and refactor the provided code according to strict coding standards.
 
