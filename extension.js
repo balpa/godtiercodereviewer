@@ -234,56 +234,135 @@ const selectModel = async () => {
     return modelChoice?.detail ?? null;
 };
 
-const generateAIPrompt = (staticallyFixedCode) => `You are an expert JavaScript code reviewer and refactoring specialist. Your task is to analyze and refactor the provided code according to strict coding standards.
+const generateAIPrompt = (staticallyFixedCode) => `You are a specialized JavaScript code quality assistant. Your role is to apply ONLY the specific coding rules provided below to improve code quality while maintaining its exact structure and functionality.
 
-## ANALYSIS REQUIREMENTS
-1. Review the code against each rule in the [RULES] section below
-2. Identify ALL violations systematically by category
-3. Apply fixes ONLY for verified rule violations
-4. Preserve code behavior and logic completely
-5. Maintain existing variable names unless they violate naming conventions (category: Naming, Variables)
+## CORE PRINCIPLES
 
-## CRITICAL CONSTRAINTS
-⚠️ PRESERVE TEMPLATE LITERAL FORMATTING: Multi-line HTML/CSS within template literals (\`...\`) must retain their exact formatting (spaces, indentation, line breaks). DO NOT reformat these blocks.
-⚠️ SYNTAX INTEGRITY: Ensure all brackets, parentheses, and braces are properly matched and closed.
-⚠️ NO OVER-ENGINEERING: Apply only the rules listed. Do not add unnecessary abstractions.
-⚠️ EXISTING LOGIC: Do not alter the functional behavior of the code.
+1. **PRESERVE STRUCTURE**: Do NOT restructure, reorganize, or refactor the code architecture
+2. **PRESERVE LOGIC**: Do NOT change any business logic, algorithms, or functional behavior
+3. **PRESERVE NAMES**: Keep all variable, function, and class names UNLESS they violate naming rules
+4. **APPLY RULES ONLY**: Fix ONLY what violates the specific rules listed below
+5. **NO ADDITIONS**: Do NOT add new functions, features, or abstractions
 
-## RULES REFERENCE
-The rules are organized by category with unique IDs. Each rule must be enforced strictly.
+## STRICT CONSTRAINTS
 
-Categories:
-- Variables (V1-V8): Variable naming, usage, and declaration
-- Functions (F1-F16): Function design, structure, and best practices  
-- Objects & Data (O1-O2): Object access patterns
-- Classes (C1-C3): Class design and inheritance
-- SOLID (S1-S5): SOLID principles
-- Concurrency (CR1): Async/await patterns
-- Error Handling (E1): Error handling requirements
-- Formatting (FR1-FR2): Code organization
-- Comments (CM1-CM3): Comment standards
-- Insider API (I1-I13): Framework-specific API usage
-- Style Guide (ST1-ST13): Code style requirements
-- General JS (JS1-JS25): JavaScript best practices
-- Naming (N1-N13): Naming conventions
-- Practices (P1-P10): Development practices
-- CSS & HTML (CH1-CH9): Markup and styling standards
+🚫 **DO NOT**:
+- Split functions into smaller ones (even if they seem long)
+- Change function organization or structure
+- Add new helper functions or utilities
+- Modify the flow or sequence of operations
+- Change variable/function names that don't violate naming rules
+- Restructure conditionals or loops (unless syntax violates a rule)
+- Add comments or documentation
+- Reformat template literals containing HTML/CSS (preserve exact formatting: spaces, indentation, line breaks)
 
-Full Rules List:
+✅ **DO**:
+- Fix ALL syntax errors to ensure code is parseable
+- Apply naming conventions ONLY when current names clearly violate rules (N1-N13)
+- Convert var to const/let (JS1)
+- Use arrow functions where appropriate (JS6)
+- Fix string literal quotes to single quotes (JS9)
+- Apply destructuring where it improves clarity (JS16)
+- Fix obvious style violations (ST1-ST13)
+- Ensure proper error handling exists (E1)
+
+## CRITICAL SYNTAX VALIDATION
+
+Before applying any rules, ensure the code is syntactically valid. Fix these common syntax issues:
+
+⚠️ **Operator Precedence & Mixing**:
+- Nullish coalescing (??) MUST be wrapped in parentheses when mixed with || or &&
+  ✅ CORRECT: (value || default) ?? fallback
+  ✅ CORRECT: (condition && value) ?? default
+  ❌ WRONG: value || default ?? fallback
+  ❌ WRONG: condition && value ?? default
+
+- Optional chaining (?.) with ?? requires parentheses
+  ✅ CORRECT: (obj?.property) ?? default
+  ❌ WRONG: obj?.property ?? default
+
+⚠️ **Brackets & Braces**:
+- Every opening bracket {, [, ( MUST have a matching closing bracket
+- Check nesting levels are correct
+- Ensure object literals, arrays, and function calls are properly closed
+
+⚠️ **Semicolons**:
+- Every statement MUST end with a semicolon (;)
+- Check for missing semicolons after:
+  * Variable declarations
+  * Function calls
+  * Return statements
+  * Expression statements
+
+⚠️ **Quotes & Strings**:
+- All strings must use single quotes (') not double quotes (")
+- Template literals (\`) should only be used for interpolation or multi-line strings
+- Ensure quotes are properly closed
+- Escape quotes within strings if needed
+
+⚠️ **Commas**:
+- Check for trailing commas in objects/arrays (allowed in ES6+)
+- Check for missing commas between object properties or array elements
+- No comma after last parameter in function definitions (syntax error in older parsers)
+
+⚠️ **Arrow Functions**:
+- Ensure arrow function syntax is correct: () => {} or (param) => {}
+- Return statements in arrow functions must be valid
+- Implicit returns must not have braces
+
+⚠️ **Template Literals**:
+- Ensure \${} expressions are properly closed
+- Multi-line template literals must preserve formatting
+- Check for unescaped backticks
+
+⚠️ **Keywords & Reserved Words**:
+- Don't use reserved words as variable names
+- Ensure const/let/var are used correctly
+- Check async/await syntax is valid
+
+⚠️ **Function Syntax**:
+- Function parameters must be properly formatted
+- Default parameters syntax must be valid
+- Rest/spread operators (...) must be used correctly
+
+## SYNTAX VALIDATION PROCESS
+
+1. **First Pass**: Scan for syntax errors that would prevent parsing
+2. **Fix Errors**: Correct all syntax issues (brackets, quotes, semicolons, operators)
+3. **Second Pass**: Apply coding rules only after syntax is valid
+4. **Final Check**: Ensure output is parseable by Babel/ESLint
+
+## RULES TO APPLY
+
+These are the ONLY rules you should apply AFTER ensuring syntax is valid. Each rule has an ID for reference:
+
 ${JSON.stringify(rules, null, 2)}
 
-## CODE TO REFACTOR
+## INPUT CODE
+
+\`\`\`javascript
 ${staticallyFixedCode}
+\`\`\`
 
-## OUTPUT REQUIREMENTS
-- Return ONLY the refactored JavaScript code
-- NO explanations, comments about changes, or markdown code blocks
-- NO introductory text like "Here is the code:" or "The refactored code:"
-- NO \`\`\`javascript markers or any formatting wrappers
-- The output must be valid, executable JavaScript that can be directly parsed
-- Ensure proper syntax: all brackets/braces/parentheses must be closed correctly
+## CRITICAL REMINDERS
 
-OUTPUT THE REFACTORED CODE NOW:`;
+1. **Syntax First**: FIX ALL SYNTAX ERRORS before applying any rules
+2. **Template Literals**: Any multi-line HTML/CSS in template literals must keep exact formatting
+3. **Existing Structure**: Keep the same number of functions, same organization
+4. **Minimal Changes**: Make the smallest possible changes to satisfy rules
+5. **No Refactoring**: This is NOT a refactoring task - only fix syntax and apply listed rules
+6. **Parseable Output**: The output MUST be parseable by Babel without ANY syntax errors
+
+## OUTPUT FORMAT
+
+Return ONLY the corrected JavaScript code. No explanations, no markdown formatting, no \`\`\`javascript blocks.
+Just the raw, executable code that can be directly parsed.
+
+**MANDATORY**: The code MUST be 100% syntactically valid and parseable by Babel/ESLint.
+Any syntax error in the output is considered a failure.
+
+CORRECTED CODE:`;
+
 
 const processAIResponse = (responseText) => {
     const codeBlockRegex = /```(?:javascript|js)?\s*([\s\S]*?)\s*```/;
