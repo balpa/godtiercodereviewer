@@ -192,6 +192,8 @@ const applyAIFix = async () => {
         if (state.currentWebviewPanel) {
             state.currentWebviewPanel.dispose();
         }
+
+        await runESLintAutoFix(editor.document);
     } catch (error) {
         vscode.window.showErrorMessage('An error occurred while applying changes.');
         console.error('Apply fix error:', error);
@@ -203,6 +205,19 @@ const rejectAIFix = () => {
         state.currentWebviewPanel.dispose();
     }
     vscode.window.showInformationMessage('GodTierCodeReviewer AI: Changes rejected.');
+};
+
+const runESLintAutoFix = async (document) => {
+    try {
+        await document.save();
+        await vscode.commands.executeCommand('eslint.executeAutofix');
+
+        return true;
+    } catch (error) {
+        console.error('ESLint autofix error:', error);
+
+        return false;
+    }
 };
 
 const getCodeRange = (editor) => {
@@ -567,6 +582,12 @@ const registerApplyFromCodeLens = (context) => {
 
             await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
+
+            // Run ESLint autofix after applying suggestion
+            const editor = vscode.window.activeTextEditor;
+            if (editor && editor.document.uri.toString() === uri.toString()) {
+                await runESLintAutoFix(editor.document);
+            }
         })
     );
 };
@@ -612,6 +633,9 @@ const registerApplySuggestionAtCursor = (context) => {
 
             await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
+
+            // Run ESLint autofix after applying suggestion
+            await runESLintAutoFix(editor.document);
         })
     );
 };
