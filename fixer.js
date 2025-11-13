@@ -40,6 +40,7 @@ const { ensureUseStrictInIIFE } = require('./functions/ensureUseStrictInIIFE');
 const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLiterals');
 const { convertTimeToDateHelper } = require('./functions/convertTimeToDateHelper');
 const { convertStorageExpireTimeToDateHelper } = require('./functions/convertStorageExpireTimeToDateHelper');
+const { convertStringConcatenationToTemplateLiteral } = require('./functions/convertStringConcatenationToTemplateLiteral');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -68,7 +69,8 @@ const fixCode = (code) => {
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
-        simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper
+        simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper,
+        convertStringConcatenationToTemplateLiteral
     ]
 
     declaredFunctions.forEach((fn) => {
