@@ -39,6 +39,7 @@ const { convertFallbackToOptionalChaining } = require('./functions/convertFallba
 const { ensureUseStrictInIIFE } = require('./functions/ensureUseStrictInIIFE');
 const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLiterals');
 const { convertTimeToDateHelper } = require('./functions/convertTimeToDateHelper');
+const { convertStorageExpireTimeToDateHelper } = require('./functions/convertStorageExpireTimeToDateHelper');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -67,7 +68,7 @@ const fixCode = (code) => {
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
-        simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper
+        simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper
     ]
 
     declaredFunctions.forEach((fn) => {
