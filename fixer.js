@@ -41,6 +41,7 @@ const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLitera
 const { convertTimeToDateHelper } = require('./functions/convertTimeToDateHelper');
 const { convertStorageExpireTimeToDateHelper } = require('./functions/convertStorageExpireTimeToDateHelper');
 const { convertStringConcatenationToTemplateLiteral } = require('./functions/convertStringConcatenationToTemplateLiteral');
+const { reorderSelfMethods } = require('./functions/reorderSelfMethods');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -70,35 +71,21 @@ const fixCode = (code) => {
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
         simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper,
-        convertStringConcatenationToTemplateLiteral
+        convertStringConcatenationToTemplateLiteral, reorderSelfMethods
     ]
 
     declaredFunctions.forEach((fn) => {
         functionCaller(fn, ast)
     })
 
-    return recastCode = recast.print(ast, {
+    let recastCode = recast.print(ast, {
         retainLines: true,
         quote: 'single'
-      }).code;
+    }).code;
 
-    //   try {
-    //     const formattedCode = prettier.format(recastCode, {
-    //         parser: 'babel',
-    //         templateCurlySpacing: true,
-    //         singleQuote: true,
-    //         semi: true,
-    //         trailingComma: 'es5',
-    //         tabWidth: 4,
-    //         bracketSpacing: true,
-    //     });
+    recastCode = recastCode.replace(/\$\{(\S)/g, '${ $1').replace(/(\S)\}/g, '$1 }');
 
-    //     return formattedCode;
-    // } catch (error) {
-    //     console.error("Prettier formatlama hatası:", error);
-
-    //     return recastCode;
-    // }
+    return recastCode;
 };
 
 module.exports = { fixCode };

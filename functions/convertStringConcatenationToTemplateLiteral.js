@@ -32,19 +32,19 @@ function convertStringConcatenationToTemplateLiteral(ast) {
                     let currentString = '';
 
                     parts.forEach((part, index) => {
-                        if ((part.type === 'StringLiteral' || part.type === 'Literal') && 
-                            typeof part.value === 'string') {
-
+                        const isString = (part.type === 'StringLiteral' || part.type === 'Literal') && 
+                            typeof part.value === 'string';
+                        
+                        if (isString) {
                             currentString += part.value;
                         } else {
-                            currentString += ' ';
                             quasis.push(b.templateElement(
                                 { raw: currentString, cooked: currentString },
                                 false
                             ));
                             expressions.push(part);
 
-                            currentString = ' ';
+                            currentString = '';
                         }
                     });
 

@@ -5,7 +5,8 @@
   "version": "1.0.1",
   "publisher": "balpa",
   "engines": {
-    "vscode": "^1.54.0"
+    "vscode": "^1.54.0",
+    "cursor": "*"
   },
   "categories": [
     "Other"
