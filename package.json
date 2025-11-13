@@ -4,6 +4,11 @@
   "description": "",
   "version": "1.0.2",
   "publisher": "balpa",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/balpa/godtiercodereviewer.git"
+  },
   "engines": {
     "vscode": "^1.54.0",
     "cursor": "*"
