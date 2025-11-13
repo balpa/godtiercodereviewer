@@ -2,6 +2,23 @@
 
 All notable changes to the "godtiercodereviewer" extension will be documented in this file.
 
+## [1.0.2] - 2025-11-13
+
+### Added
+- **Cursor IDE Support**: Extension now officially supports Cursor IDE
+  - Added `cursor: "*"` to engines in package.json
+  - Extension can be installed and used in both VS Code and Cursor
+
+- **reorderSelfMethods**: Automatically reorders self-invoking function methods based on call order in `init`
+  - Example: Methods are sorted so `init` comes first, followed by methods in the order they're called
+  - Improves code readability by organizing methods in execution order
+  - Works with `((self) => { ... })({})` pattern
+
+### Fixed
+- **convertStringConcatenationToTemplateLiteral**: Fixed template literal spacing
+  - Now correctly formats as `` `text${ variable }` `` with spaces inside curly braces
+  - Removed extra trailing spaces and backticks
+
 ## [1.0.1] - 2025-11-13
 
 ### Added
@@ -15,9 +32,9 @@ All notable changes to the "godtiercodereviewer" extension will be documented in
   - Only converts values between 0-366 days
 
 - **convertStringConcatenationToTemplateLiteral**: Converts string concatenations to template literals
-  - Example: `'berke' + a` → `` `berke ${ a } ` ``
-  - Example: `'hello' + name + '!'` → `` `hello ${ name } !` ``
-  - Adds spaces around template expressions for better readability
+  - Example: `'berke' + a` → `` `berke${ a }` ``
+  - Example: `'hello' + name + '!'` → `` `hello${ name }!` ``
+  - Adds spaces inside template expressions for better readability
 
 ### Changed
 - Updated fixer pipeline to include new transformation functions
