@@ -41,7 +41,7 @@ const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLitera
 const { convertTimeToDateHelper } = require('./functions/convertTimeToDateHelper');
 const { convertStorageExpireTimeToDateHelper } = require('./functions/convertStorageExpireTimeToDateHelper');
 const { convertStringConcatenationToTemplateLiteral } = require('./functions/convertStringConcatenationToTemplateLiteral');
-const { reorderSelfMethods } = require('./functions/reorderSelfMethods');
+//const { reorderSelfMethods } = require('./functions/reorderSelfMethods');
 const parseOptions = {
     parser: {
         parse(source) {
@@ -71,7 +71,7 @@ const fixCode = (code) => {
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
         simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper,
-        convertStringConcatenationToTemplateLiteral, reorderSelfMethods
+        convertStringConcatenationToTemplateLiteral
     ]
 
     declaredFunctions.forEach((fn) => {
