@@ -33,7 +33,7 @@ class GodTierCodeLensProvider {
             const codeLensRange = new vscode.Range(range.start.line, 0, range.start.line, 0);
 
             const applyCommand = {
-                title: '✅ God Tier: Uygula',
+                title: '✅ Uygula',
                 tooltip: 'Önerilen değişikliği uygula',
                 command: 'godtier.applyFromCodeLens',
                 arguments: [args]
