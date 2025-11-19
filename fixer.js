@@ -83,7 +83,10 @@ const fixCode = (code) => {
         quote: 'single'
     }).code;
 
-    recastCode = recastCode.replace(/\$\{(\S)/g, '${ $1').replace(/(\S)\}/g, '$1 }');
+    recastCode = recastCode.replace(/\$\{([^}]+)\}/g, (match, content) => {
+        const trimmed = content.trim();
+        return `\${ ${trimmed} }`;
+    });
 
     return recastCode;
 };
