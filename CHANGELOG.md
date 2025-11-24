@@ -2,6 +2,23 @@
 
 All notable changes to the "godtiercodereviewer" extension will be documented in this file.
 
+## [1.0.6] - 2025-11-24
+
+### Fixed
+- **Parser Support**: Added optional chaining (`?.`) and nullish coalescing (`??`) operator support to Babel parser
+  - Fixed `TypeError: Cannot read properties of undefined (reading 'length')` error
+  - Parser now includes `optionalChaining` and `nullishCoalescingOperator` plugins
+
+- **convertRGBtoHEX**: Added null safety checks for template literals
+  - Prevents crashes when `node.quasis` or `node.expressions` are undefined
+  - Function now gracefully handles malformed AST nodes
+
+- **optimizeBrowserChecks**: Complete rewrite to fix AST corruption issues
+  - Removed problematic scope comparison logic
+  - Improved node cloning to prevent circular references
+  - Simplified block statement detection
+  - Now safely optimizes `Insider.browser.isMobile()` and `Insider.browser.isDesktop()` calls
+
 ## [1.0.2] - 2025-11-13
 
 ### Added

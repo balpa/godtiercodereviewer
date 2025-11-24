@@ -47,7 +47,7 @@ const parseOptions = {
         parse(source) {
             return parser.parse(source, {
                 sourceType: 'module',
-                plugins: ['jsx', 'classProperties']
+                plugins: ['jsx', 'classProperties', 'optionalChaining', 'nullishCoalescingOperator']
             });
         }
     }

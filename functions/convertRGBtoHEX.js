@@ -44,6 +44,12 @@ function convertRGBtoHEX(ast) {
 
         visitTemplateLiteral(path) {
             const { node } = path;
+            
+            if (!node.quasis || !node.expressions) {
+                this.traverse(path);
+                return;
+            }
+            
             let hasChanged = false;
 
             const newQuasis = node.quasis.map(quasi => {

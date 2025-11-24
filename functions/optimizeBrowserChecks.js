@@ -15,18 +15,21 @@ function optimizeBrowserChecks(ast) {
             visitCallExpression(path) {
                 const callee = path.node.callee;
                 const isTargetCall =
-                    n.MemberExpression.check(callee) && n.Identifier.check(callee.property) &&
-                    callee.property.name === functionName && n.MemberExpression.check(callee.object) &&
-                    n.Identifier.check(callee.object.property) && callee.object.property.name === 'browser' &&
-                    n.Identifier.check(callee.object.object) && callee.object.object.name === 'Insider';
+                    n.MemberExpression.check(callee) && 
+                    n.Identifier.check(callee.property) &&
+                    callee.property.name === functionName && 
+                    n.MemberExpression.check(callee.object) &&
+                    n.Identifier.check(callee.object.property) && 
+                    callee.object.property.name === 'browser' &&
+                    n.Identifier.check(callee.object.object) && 
+                    callee.object.object.name === 'Insider';
 
                 if (isTargetCall) {
                     if (n.VariableDeclarator.check(path.parent.node) && path.parent.node.init === path.node) {
                         const varName = path.parent.node.id.name;
                         analysis.declarations.push({
                             varName: varName,
-                            declarationPath: path.parentPath.parentPath,
-                            scope: path.scope
+                            declarationPath: path.parentPath.parentPath
                         });
                         analysis.variableUsage[varName] = [];
                     } else {
@@ -37,7 +40,7 @@ function optimizeBrowserChecks(ast) {
             },
             visitIdentifier(path) {
                 const varName = path.node.name;
-                if (analysis.variableUsage[varName]) {
+                if (analysis.variableUsage.hasOwnProperty(varName)) {
                     if (!(n.VariableDeclarator.check(path.parent.node) && path.parent.node.id === path.node)) {
                         analysis.variableUsage[varName].push(path);
                     }
@@ -46,38 +49,70 @@ function optimizeBrowserChecks(ast) {
             }
         });
 
-        analysis.declarations.forEach(({ varName, declarationPath, scope }) => {
-            const usagesInScope = (analysis.variableUsage[varName] || []).filter(
-                usagePath => usagePath.scope.path.node === scope.path.node
-            );
+        analysis.declarations.forEach(({ varName, declarationPath }) => {
+            const usages = analysis.variableUsage[varName] || [];
 
-            if (usagesInScope.length === 1) {
-                const usagePath = usagesInScope[0];
-                const callExpressionNode = declarationPath.node.declarations[0].init;
-
-                usagePath.replace(callExpressionNode);
-                declarationPath.prune();
+            if (usages.length === 1 && declarationPath && declarationPath.node && declarationPath.node.declarations) {
+                const usagePath = usages[0];
+                const init = declarationPath.node.declarations[0]?.init;
+                
+                if (init && n.CallExpression.check(init)) {
+                    const newCallExpr = b.callExpression(
+                        b.memberExpression(
+                            b.memberExpression(
+                                b.identifier('Insider'),
+                                b.identifier('browser')
+                            ),
+                            b.identifier(functionName)
+                        ),
+                        []
+                    );
+                    
+                    usagePath.replace(newCallExpr);
+                    declarationPath.prune();
+                }
             }
         });
 
         if (analysis.directCalls.length > 1) {
-            let insertionScopePath = analysis.directCalls[0];
-            while (insertionScopePath.parentPath) {
-                if (n.BlockStatement.check(insertionScopePath.node)) break;
-                insertionScopePath = insertionScopePath.parentPath;
+            let blockPath = analysis.directCalls[0];
+            
+            while (blockPath && blockPath.parentPath) {
+                if (n.BlockStatement.check(blockPath.node) || n.Program.check(blockPath.node)) {
+                    break;
+                }
+                blockPath = blockPath.parentPath;
             }
 
             const varName = functionName;
+
             const newDeclaration = b.variableDeclaration('const', [
-                b.variableDeclarator(b.identifier(varName), analysis.directCalls[0].node)
+                b.variableDeclarator(
+                    b.identifier(varName), 
+                    b.callExpression(
+                        b.memberExpression(
+                            b.memberExpression(
+                                b.identifier('Insider'),
+                                b.identifier('browser')
+                            ),
+                            b.identifier(functionName)
+                        ),
+                        []
+                    )
+                )
             ]);
 
-            analysis.directCalls.forEach(callPath => callPath.replace(b.identifier(varName)));
+            analysis.directCalls.forEach(callPath => {
+                const identifierNode = b.identifier(varName);
+                callPath.replace(identifierNode);
+            });
 
-            if (insertionScopePath && n.BlockStatement.check(insertionScopePath.node)) {
-                insertionScopePath.get('body').unshift(newDeclaration);
-            } else {
-                ast.program.body.unshift(newDeclaration);
+            if (blockPath) {
+                if (n.Program.check(blockPath.node)) {
+                    blockPath.node.body.unshift(newDeclaration);
+                } else if (n.BlockStatement.check(blockPath.node)) {
+                    blockPath.node.body.unshift(newDeclaration);
+                }
             }
         }
     });
