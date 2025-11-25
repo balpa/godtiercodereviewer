@@ -1,10 +1,11 @@
 {
   "name": "godtiercodereviewer",
-  "displayName": "godtiercodereviewer",
-  "description": "",
-  "version": "1.0.8",
+  "displayName": "God Tier Code Reviewer",
+  "description": "AI-powered code reviewer that automatically fixes JavaScript/TypeScript with 30+ rules, real-time suggestions, and bulk actions",
+  "version": "1.0.9",
   "publisher": "balpa",
   "license": "MIT",
+  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/balpa/godtiercodereviewer.git"

@@ -2,6 +2,11 @@
 
 All notable changes to the "godtiercodereviewer" extension will be documented in this file.
 
+## [1.0.9] - 2025-11-25
+
+### Added
+- **Extension Icon**: Added custom icon (icon.png) for better visual identity in VS Code marketplace
+
 ## [1.0.8] - 2025-11-25
 
 ### Fixed
