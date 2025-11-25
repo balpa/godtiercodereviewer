@@ -29,7 +29,7 @@ function convertLogicalOrToNullish(ast) {
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 function isAncestor(ancestorPath, descendantPath) {

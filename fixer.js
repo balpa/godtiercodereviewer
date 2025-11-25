@@ -36,8 +36,20 @@ const { simplifyTemplateLiterals } = require('./functions/simplifyTemplateLitera
 const { convertTimeToDateHelper } = require('./functions/convertTimeToDateHelper');
 const { convertStorageExpireTimeToDateHelper } = require('./functions/convertStorageExpireTimeToDateHelper');
 const { convertStringConcatenationToTemplateLiteral } = require('./functions/convertStringConcatenationToTemplateLiteral');
-//const { reorderSelfMethods } = require('./functions/reorderSelfMethods');
 const parseOptions = {
+    parser: {
+        parse(source) {
+            return parser.parse(source, {
+                sourceType: 'module',
+                plugins: ['jsx', 'classProperties', 'optionalChaining', 'nullishCoalescingOperator']
+            });
+        }
+    }
+};
+
+const printOptions = {
+    retainLines: true,
+    quote: 'single',
     parser: {
         parse(source) {
             return parser.parse(source, {
@@ -65,7 +77,7 @@ const fixCode = (code) => {
         applyDestructuringRefactoring, convertLengthControlForIfCondition, convertStringCasting,
         addVariationIdForEventNamespaces, enhanceEventHandlers, addErrorHandlerToRequests, convertToAccessNodes,
         optimizeBrowserChecks, convertRGBtoHEX, convertFallbackToOptionalChaining, convertLogicalOrToNullish,
-        simplifyTemplateLiterals, formatTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper,
+        simplifyTemplateLiterals, convertTimeToDateHelper, convertStorageExpireTimeToDateHelper,
         convertStringConcatenationToTemplateLiteral
     ]
 
@@ -73,15 +85,7 @@ const fixCode = (code) => {
         functionCaller(fn, ast)
     })
 
-    let recastCode = recast.print(ast, {
-        retainLines: true,
-        quote: 'single'
-    }).code;
-
-    recastCode = recastCode.replace(/\$\{([^}]+)\}/g, (match, content) => {
-        const trimmed = content.trim();
-        return `\${ ${trimmed} }`;
-    });
+    let recastCode = recast.print(ast, printOptions).code;
 
     return recastCode;
 };

@@ -39,7 +39,7 @@ function addDollarPrefixForOnElementLoadedParam(ast) {
     }
   });
 
-  return recast.print(ast).code;
+  return ast;
 }
 
 module.exports = { addDollarPrefixForOnElementLoadedParam };

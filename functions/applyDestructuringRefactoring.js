@@ -90,11 +90,7 @@ function applyDestructuringRefactoring(ast) {
         }
     });
 
-    return recast.print(ast, {
-        tabWidth: 4,
-        useTabs: false,
-        wrapColumn: Infinity // destructing wont print in one line
-    }).code;
+    return ast;
 }
 
 module.exports = { applyDestructuringRefactoring };

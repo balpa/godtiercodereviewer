@@ -72,7 +72,7 @@ function convertRGBtoHEX(ast) {
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 module.exports = { convertRGBtoHEX };

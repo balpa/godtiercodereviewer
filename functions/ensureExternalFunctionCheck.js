@@ -178,7 +178,7 @@ function ensureExternalFunctionCheck(ast) {
         }
     }
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 module.exports = { ensureExternalFunctionCheck };

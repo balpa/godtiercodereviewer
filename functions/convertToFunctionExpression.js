@@ -66,7 +66,7 @@ function convertToFunctionExpression(ast) {
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 module.exports = { convertToFunctionExpression };

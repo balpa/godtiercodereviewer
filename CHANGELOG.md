@@ -2,6 +2,34 @@
 
 All notable changes to the "godtiercodereviewer" extension will be documented in this file.
 
+## [1.0.8] - 2025-11-25
+
+### Fixed
+- **Per-line Diagnostic Application**: Fixed regression where applying one suggestion would incorrectly apply adjacent suggestions
+  - Removed automatic ESLint autofix after applying suggestions to prevent unintended changes
+  - Fixed diff hunk parsing to properly filter out metadata lines (e.g., "No newline at end of file")
+  - Each diagnostic now correctly applies only its specific change
+
+- **Template Literal Formatting**: Removed automatic spacing inside template literal expressions
+  - Template literals like `${variable}` no longer get converted to `${ variable }`
+  - Removed `formatTemplateLiterals` function from transformation pipeline
+  - Removed regex-based spacing injection in fixer.js
+
+### Improved
+- **Code Quality**: Cleaned up codebase by removing all comment lines from production code
+  - Removed TODO comments, inline documentation comments, and debugging comments
+  - Cleaner, more maintainable codebase
+
+### Added
+- **Function Test Suite**: Added comprehensive test file for transformation functions
+  - 20 test cases covering core transformation functions
+  - 9 passing tests for commonly used transformations
+  - Test runner: `node test/functions.test.js`
+
+### Removed
+- Test file: `test/randomTest.js`
+- Unused function: `functions/reorderSelfMethods.js`
+
 ## [1.0.7] - 2025-11-25
 
 ### Added

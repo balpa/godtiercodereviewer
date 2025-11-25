@@ -51,7 +51,7 @@ function convertEs5ToArrowFunctions(ast) {
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 module.exports = { convertEs5ToArrowFunctions };

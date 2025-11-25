@@ -4,32 +4,25 @@ const { namedTypes: n } = recast.types;
 function formatTemplateLiterals(ast) {
     recast.visit(ast, {
         visitTemplateLiteral(path) {
-            let needsReplacement = false;
-
-            for (let i = 0; i < path.node.expressions.length; i++) {
-                const quasiBefore = path.node.quasis[i];
-                const quasiAfter = path.node.quasis[i + 1];
-
-                if (!quasiBefore.value.raw.endsWith(' ') || !quasiAfter.value.raw.startsWith(' ')) {
-                    needsReplacement = true;
-                    break; 
+            for (let i = 0; i < path.node.quasis.length; i++) {
+                const quasi = path.node.quasis[i];
+                
+                if (i > 0 && !quasi.value.raw.startsWith(' ')) {
+                    quasi.value.raw = ' ' + quasi.value.raw;
+                    quasi.value.cooked = quasi.value.cooked ? ' ' + quasi.value.cooked : quasi.value.raw;
                 }
-            }
-
-            if (needsReplacement) {
-                const nodeAsString = recast.print(path.node).code;
-                const fixedString = nodeAsString.replace(/\$\{(?!\s)(.*?)(?<!\s)\}/g, '${ $1 }');
-
-                const newNode = recast.parse(fixedString).program.body[0].expression;
-
-                path.replace(newNode);
+                
+                if (i < path.node.quasis.length - 1 && !quasi.value.raw.endsWith(' ')) {
+                    quasi.value.raw = quasi.value.raw + ' ';
+                    quasi.value.cooked = quasi.value.cooked ? quasi.value.cooked + ' ' : quasi.value.raw;
+                }
             }
 
             return false;
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 module.exports = { formatTemplateLiterals };

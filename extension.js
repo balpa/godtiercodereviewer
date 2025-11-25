@@ -500,11 +500,10 @@ const createWebviewPanel = (context, originalCode, finalCode, editor, range) => 
 
 const createDiagnosticRange = (editor, selectionStartLine, hunk) => {
     const relativeStartLine = hunk.oldStart - 1;
-    const relativeEndLine = hunk.oldStart + hunk.oldLines - 2;
     const docStartLine = selectionStartLine + relativeStartLine;
-    const docEndLine = selectionStartLine + relativeEndLine;
 
     if (hunk.oldLines > 0) {
+        const docEndLine = docStartLine + hunk.oldLines - 1;
         const endLineText = editor.document.lineAt(docEndLine).text;
         return new vscode.Range(
             new vscode.Position(docStartLine, 0),
@@ -548,7 +547,7 @@ const processDiagnostics = (editor, originalCode, finalCode, range) => {
 
     for (const hunk of patch.hunks) {
         const newText = hunk.lines
-            .filter((line) => !line.startsWith('-'))
+            .filter((line) => !line.startsWith('-') && !line.startsWith('\\'))
             .map((line) => line.substring(1))
             .join('\n');
 
@@ -565,7 +564,6 @@ const processDiagnostics = (editor, originalCode, finalCode, range) => {
         vscode.commands.executeCommand('editor.action.marker.nextInFiles');
         updateSuggestionContext();
 
-        // Refresh CodeLens immediately
         if (state.codeLensProvider) {
             state.codeLensProvider.refresh();
         }
@@ -596,11 +594,6 @@ const registerApplyFromCodeLens = (context) => {
 
             await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
-
-            const editor = vscode.window.activeTextEditor;
-            if (editor && editor.document.uri.toString() === uri.toString()) {
-                await runESLintAutoFix(editor.document);
-            }
         })
     );
 };
@@ -921,7 +914,7 @@ const activate = (context) => {
 
     const actionsButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 899);
     actionsButton.command = COMMAND_IDS.SHOW_ACTIONS_MENU;
-    actionsButton.text = '$(menu) Review Actions';
+    actionsButton.text = '$(menu) Code Review Actions';
     actionsButton.tooltip = 'Apply or reset all suggestions';
     actionsButton.show();
 

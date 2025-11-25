@@ -35,7 +35,7 @@ function convertFallbackToOptionalChaining(ast) {
         }
     });
 
-    return recast.print(ast).code;
+    return ast;
 }
 
 function isAncestor(ancestorPath, descendantPath) {

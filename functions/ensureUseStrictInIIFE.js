@@ -37,7 +37,7 @@ function ensureUseStrictInIIFE(ast) {
         }
     });
 
-    return recast.print(ast, { tabWidth: 4 }).code;
+    return ast;
 }
 
 module.exports = { ensureUseStrictInIIFE };

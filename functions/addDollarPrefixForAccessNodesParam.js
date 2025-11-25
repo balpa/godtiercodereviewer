@@ -40,7 +40,7 @@ function addDollarPrefixForAccessNodesParam(ast) {
     }
   });
 
-  return recast.print(ast).code;
+  return ast;
 }
 
 module.exports = { addDollarPrefixForAccessNodesParam };
