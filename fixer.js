@@ -2,10 +2,6 @@ const recast = require('recast');
 const parser = require('@babel/parser');
 const prettier = require('prettier');
 
-//TODO: return etmeden önce ESlint ekle
-//TODO: babel generator ile kod return edilebilir noktalı virgül için. 
-//const generator = require('@babel/generator').default;
-
 const { removeConsoleLog } = require('./functions/removeConsoleLog');
 const { clearVariableNames } = require('./functions/clearVariableNames');
 const { clearFunctionName } = require('./functions/clearFunctionName');
@@ -30,7 +26,6 @@ const { addErrorHandlerToRequests } = require('./functions/addErrorHandlerIfMiss
 const { addVariationIdForEventNamespaces } = require('./functions/addVariationIdForEventNamespaces')
 const { enhanceEventHandlers } = require('./functions/enhanceEventHandlers')
 const { convertToAccessNodes } = require('./functions/convertToAccessNodes');
-//FIX: optimizeBrowserChecks not working
 const { optimizeBrowserChecks } = require('./functions/optimizeBrowserChecks');
 const { formatTemplateLiterals } = require('./functions/formatTemplateLiterals');
 const { convertRGBtoHEX } = require('./functions/convertRGBtoHEX');

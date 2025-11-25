@@ -15,7 +15,8 @@ const state = {
     currentSuggestionContext: false,
     suggestionDecorationType: null,
     currentWebviewPanel: null,
-    currentAIFixData: null
+    currentAIFixData: null,
+    codeLensProvider: null
 };
 
 const GODTIER_SOURCE = 'godtier';
@@ -26,7 +27,10 @@ const COMMAND_IDS = {
     SHOW_DIFF_FROM_LENS: 'godtier.showDiffFromCodeLens',
     APPLY_AT_CURSOR: 'godtiercodereviewer.applySuggestionAtCursor',
     REJECT_AT_CURSOR: 'godtiercodereviewer.rejectSuggestionAtCursor',
-    SHOW_DIFF_AT_CURSOR: 'godtiercodereviewer.showDiffAtCursor'
+    SHOW_DIFF_AT_CURSOR: 'godtiercodereviewer.showDiffAtCursor',
+    RESET_ALL: 'godtiercodereviewer.resetAllSuggestions',
+    APPLY_ALL: 'godtiercodereviewer.applyAllSuggestions',
+    SHOW_ACTIONS_MENU: 'godtiercodereviewer.showActionsMenu'
 };
 
 const AI_MODELS = [
@@ -119,6 +123,11 @@ const removeDiagnostic = async (uri, rangeToRemove) => {
 
     if (editor && editor.document.uri.toString() === uri.toString()) {
         updateDecorations(editor);
+    }
+
+    // Refresh CodeLens immediately
+    if (state.codeLensProvider) {
+        state.codeLensProvider.refresh();
     }
 
     await closeGodTierDiffTab(rangeToRemove);
@@ -556,6 +565,11 @@ const processDiagnostics = (editor, originalCode, finalCode, range) => {
         vscode.commands.executeCommand('editor.action.marker.nextInFiles');
         updateSuggestionContext();
 
+        // Refresh CodeLens immediately
+        if (state.codeLensProvider) {
+            state.codeLensProvider.refresh();
+        }
+
         const message = `${diagnostics.length} code suggestion(s) found. Right-click on underlined areas or use keyboard shortcuts to view suggestions.`;
         const actionTitle = 'Go to First Suggestion';
 
@@ -583,7 +597,6 @@ const registerApplyFromCodeLens = (context) => {
             await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
 
-            // Run ESLint autofix after applying suggestion
             const editor = vscode.window.activeTextEditor;
             if (editor && editor.document.uri.toString() === uri.toString()) {
                 await runESLintAutoFix(editor.document);
@@ -634,7 +647,6 @@ const registerApplySuggestionAtCursor = (context) => {
             await removeDiagnostic(uri, range);
             vscode.window.showInformationMessage('GodTierCodeReviewer: Suggestion applied!');
 
-            // Run ESLint autofix after applying suggestion
             await runESLintAutoFix(editor.document);
         })
     );
@@ -670,6 +682,131 @@ const registerShowDiffAtCursor = (context) => {
             const oldText = diagnostic.code.original;
             const newText = diagnostic.code.fix;
             await showDiff(oldText, newText, diagnostic.range);
+        })
+    );
+};
+
+const registerResetAllSuggestions = (context) => {
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMAND_IDS.RESET_ALL, async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('No active editor found.');
+                return;
+            }
+
+            const diagnostics = state.diagnosticCollection.get(editor.document.uri);
+            if (!diagnostics || diagnostics.length === 0) {
+                vscode.window.showInformationMessage('No suggestions to reset.');
+                return;
+            }
+
+            state.diagnosticCollection.set(editor.document.uri, []);
+            updateDecorations(editor);
+            updateSuggestionContext();
+
+            if (state.codeLensProvider) {
+                state.codeLensProvider.refresh();
+            }
+
+            for (const diagnostic of diagnostics) {
+                await closeGodTierDiffTab(diagnostic.range);
+            }
+
+            vscode.window.showInformationMessage(`GodTierCodeReviewer: ${diagnostics.length} suggestion(s) reset successfully.`);
+        })
+    );
+};
+
+const registerApplyAllSuggestions = (context) => {
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMAND_IDS.APPLY_ALL, async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('No active editor found.');
+                return;
+            }
+
+            const diagnostics = state.diagnosticCollection.get(editor.document.uri);
+            if (!diagnostics || diagnostics.length === 0) {
+                vscode.window.showInformationMessage('No suggestions to apply.');
+                return;
+            }
+
+            const godtierDiagnostics = diagnostics.filter(d => d.source === GODTIER_SOURCE);
+            if (godtierDiagnostics.length === 0) {
+                vscode.window.showInformationMessage('No suggestions to apply.');
+                return;
+            }
+
+            const sortedDiagnostics = [...godtierDiagnostics].sort((a, b) => {
+                return b.range.start.line - a.range.start.line;
+            });
+
+            const edit = new vscode.WorkspaceEdit();
+            for (const diagnostic of sortedDiagnostics) {
+                const { fix: newText } = diagnostic.code;
+                edit.replace(editor.document.uri, diagnostic.range, newText);
+            }
+
+            await vscode.workspace.applyEdit(edit);
+
+            state.diagnosticCollection.set(editor.document.uri, []);
+            updateDecorations(editor);
+            updateSuggestionContext();
+
+            if (state.codeLensProvider) {
+                state.codeLensProvider.refresh();
+            }
+
+            for (const diagnostic of sortedDiagnostics) {
+                await closeGodTierDiffTab(diagnostic.range);
+            }
+
+            vscode.window.showInformationMessage(`GodTierCodeReviewer: ${sortedDiagnostics.length} suggestion(s) applied successfully!`);
+
+            await runESLintAutoFix(editor.document);
+        })
+    );
+};
+
+const registerShowActionsMenu = (context) => {
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMAND_IDS.SHOW_ACTIONS_MENU, async () => {
+            const editor = vscode.window.activeTextEditor;
+            const diagnostics = editor ? state.diagnosticCollection.get(editor.document.uri) : null;
+            const hasSuggestions = diagnostics && diagnostics.length > 0;
+
+            const items = [
+                {
+                    label: '$(check-all) Tümünü Uygula',
+                    description: hasSuggestions ? `${diagnostics.length} öneri var` : 'Öneri yok',
+                    command: COMMAND_IDS.APPLY_ALL,
+                    enabled: hasSuggestions
+                },
+                {
+                    label: '$(refresh) Tümünü Resetle',
+                    description: hasSuggestions ? 'Tüm önerileri temizle' : 'Öneri yok',
+                    command: COMMAND_IDS.RESET_ALL,
+                    enabled: hasSuggestions
+                }
+            ];
+
+            const selection = await vscode.window.showQuickPick(
+                items.map(item => ({
+                    label: item.enabled ? item.label : `${item.label} (disabled)`,
+                    description: item.description,
+                    item: item
+                })),
+                {
+                    placeHolder: 'Review Actions - Select an action',
+                    title: 'God Tier Code Reviewer'
+                }
+            );
+
+            if (selection && selection.item.enabled) {
+                await vscode.commands.executeCommand(selection.item.command);
+            }
         })
     );
 };
@@ -745,11 +882,11 @@ const activate = (context) => {
     });
     context.subscriptions.push(state.suggestionDecorationType);
 
-    const codeLensProvider = new GodTierCodeLensProvider(state.diagnosticCollection);
+    state.codeLensProvider = new GodTierCodeLensProvider(state.diagnosticCollection);
     context.subscriptions.push(
         vscode.languages.registerCodeLensProvider(
             ['javascript', 'typescript', 'javascriptreact', 'typescriptreact'],
-            codeLensProvider
+            state.codeLensProvider
         )
     );
 
@@ -769,6 +906,9 @@ const activate = (context) => {
     registerApplySuggestionAtCursor(context);
     registerRejectSuggestionAtCursor(context);
     registerShowDiffAtCursor(context);
+    registerResetAllSuggestions(context);
+    registerApplyAllSuggestions(context);
+    registerShowActionsMenu(context);
     registerStartCommand(context);
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 900);
@@ -778,6 +918,14 @@ const activate = (context) => {
     statusBarItem.show();
 
     context.subscriptions.push(statusBarItem);
+
+    const actionsButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 899);
+    actionsButton.command = COMMAND_IDS.SHOW_ACTIONS_MENU;
+    actionsButton.text = '$(menu) Review Actions';
+    actionsButton.tooltip = 'Apply or reset all suggestions';
+    actionsButton.show();
+
+    context.subscriptions.push(actionsButton);
 };
 
 const deactivate = () => {

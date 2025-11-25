@@ -3,6 +3,12 @@ const vscode = require('vscode');
 class GodTierCodeLensProvider {
     constructor(diagnosticCollection) {
         this.diagnosticCollection = diagnosticCollection;
+        this._onDidChangeCodeLenses = new vscode.EventEmitter();
+        this.onDidChangeCodeLenses = this._onDidChangeCodeLenses.event;
+    }
+
+    refresh() {
+        this._onDidChangeCodeLenses.fire();
     }
 
     provideCodeLenses(document, token) {

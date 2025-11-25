@@ -2,7 +2,7 @@
   "name": "godtiercodereviewer",
   "displayName": "godtiercodereviewer",
   "description": "",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "balpa",
   "license": "MIT",
   "repository": {
@@ -26,37 +26,49 @@
     "commands": [
       {
         "command": "godtiercodereviewer.start",
-        "title": "God Tier: Kodu İncele"
+        "title": "GodTierCodeReviewer: Kodu İncele"
       },
       {
         "command": "godtiercodereviewer.applySuggestionAtCursor",
-        "title": "✅ God Tier: Öneriyi Uygula"
+        "title": "✅ GodTierCodeReviewer: Öneriyi Uygula"
       },
       {
         "command": "godtiercodereviewer.showDiffAtCursor",
-        "title": "👀 God Tier: Değişiklikleri Gör"
+        "title": "👀 GodTierCodeReviewer: Değişiklikleri Gör"
       },
       {
         "command": "godtiercodereviewer.rejectSuggestionAtCursor",
-        "title": "❌ God Tier: Öneriyi Reddet"
+        "title": "❌ GodTierCodeReviewer: Öneriyi Reddet"
+      },
+      {
+        "command": "godtiercodereviewer.resetAllSuggestions",
+        "title": "↻ GodTierCodeReviewer: Tüm Önerileri Resetle"
+      },
+      {
+        "command": "godtiercodereviewer.applyAllSuggestions",
+        "title": "✓ GodTierCodeReviewer: Tüm Önerileri Uygula"
+      },
+      {
+        "command": "godtiercodereviewer.showActionsMenu",
+        "title": "$(menu) GodTierCodeReviewer: Review Actions"
       },
       {
         "command": "godtier.applyFromCodeLens",
-        "title": "God Tier (CodeLens): Uygula"
+        "title": "GodTierCodeReviewer (CodeLens): Uygula"
       },
       {
         "command": "godtier.showDiffFromCodeLens",
-        "title": "God Tier (CodeLens): Farkı Gör"
+        "title": "GodTierCodeReviewer (CodeLens): Farkı Gör"
       },
       {
         "command": "godtier.rejectFromCodeLens",
-        "title": "God Tier (CodeLens): Reddet"
+        "title": "GodTierCodeReviewer (CodeLens): Reddet"
       }
     ],
     "submenus": [
       {
         "id": "godtier.contextMenu",
-        "label": "God Tier Önerisi"
+        "label": "GodTierCodeReviewer Önerisi"
       }
     ],
     "menus": {
@@ -83,7 +95,7 @@
       ]
     },
     "configuration": {
-      "title": "God Tier Code Reviewer",
+      "title": "GodTierCodeReviewer Code Reviewer",
       "properties": {
         "godtiercodereviewer.apiKey": {
           "type": "string",

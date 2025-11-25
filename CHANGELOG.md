@@ -2,6 +2,37 @@
 
 All notable changes to the "godtiercodereviewer" extension will be documented in this file.
 
+## [1.0.7] - 2025-11-25
+
+### Added
+- **Review Actions Menu**: New centralized status bar menu for bulk operations
+  - Added "Review Actions" button in status bar with dropdown menu
+  - "Tümünü Uygula" option to apply all suggestions at once
+  - "Tümünü Resetle" option to reset all suggestions at once
+  - Menu shows suggestion count and disables options when no suggestions exist
+
+- **Bulk Operations Commands**: New commands for managing multiple suggestions
+  - `godtiercodereviewer.applyAllSuggestions`: Apply all CodeLens suggestions in current file
+  - `godtiercodereviewer.resetAllSuggestions`: Reset all CodeLens suggestions in current file
+  - `godtiercodereviewer.showActionsMenu`: Open Review Actions menu
+  - Commands accessible via Command Palette and status bar
+
+### Improved
+- **CodeLens Real-time Updates**: CodeLens now refreshes instantly instead of delayed updates
+  - Added `onDidChangeCodeLenses` event to CodeLensProvider
+  - Automatic refresh after apply, reject, or reset operations
+  - Eliminates 2-3 second delay when clearing suggestions
+
+- **AI Fix Webview UI**: Enhanced webview interface for AI-assisted fixes
+  - Added prominent "Tümünü Uygula" and "Resetle" buttons at the top
+  - Modern gradient button design with hover animations
+  - Improved visual hierarchy and user experience
+
+### Fixed
+- **CodeLens Persistence Bug**: Fixed issue where CodeLens remained visible for several seconds after reset
+  - CodeLensProvider now properly implements event emitter pattern
+  - Instant UI updates when diagnostics are cleared
+
 ## [1.0.6] - 2025-11-24
 
 ### Fixed

@@ -44,6 +44,45 @@ function getWebviewContent(originalCode, fixedCode) {
                         padding: 20px;
                         font-family: sans-serif;
                     }
+                    .action-buttons {
+                        display: flex;
+                        gap: 15px;
+                        margin-bottom: 30px;
+                        padding: 20px;
+                        background-color: #1e1e1e;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                    }
+                    .action-buttons button {
+                        flex: 1;
+                        padding: 20px 30px;
+                        font-size: 20px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        border: none;
+                        border-radius: 8px;
+                        transition: all 0.3s ease;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+                    #apply-all-btn {
+                        background: linear-gradient(135deg, #4CAF50, #45a049);
+                        color: white;
+                    }
+                    #apply-all-btn:hover {
+                        background: linear-gradient(135deg, #45a049, #3d8b40);
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+                    }
+                    #reset-btn {
+                        background: linear-gradient(135deg, #f44336, #da190b);
+                        color: white;
+                    }
+                    #reset-btn:hover {
+                        background: linear-gradient(135deg, #da190b, #c41700);
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4);
+                    }
                     .container {
                         border: 1px solid #333;
                         border-radius: 5px;
@@ -91,6 +130,10 @@ function getWebviewContent(originalCode, fixedCode) {
             </head>
             <body>
                 <h1>God Tier Code Reviewer</h1>
+                <div class="action-buttons">
+                    <button id="apply-all-btn">✓ Tümünü Uygula</button>
+                    <button id="reset-btn">↻ Resetle</button>
+                </div>
                 <div class="legend">
                     <div class="legend-item"><div class="color-box removed"></div><span>Removed Lines</span></div>
                     <div class="legend-item"><div class="color-box added"></div><span>Added Lines</span></div>
@@ -100,6 +143,16 @@ function getWebviewContent(originalCode, fixedCode) {
                 <button id="reject-btn">Reject Changes</button>
                 <script>
                     const vscode = acquireVsCodeApi();
+                    document.getElementById('apply-all-btn').addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'applyFix'
+                        });
+                    });
+                    document.getElementById('reset-btn').addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'rejectFix'
+                        });
+                    });
                     document.getElementById('apply-btn').addEventListener('click', () => {
                         vscode.postMessage({
                             command: 'applyFix'
